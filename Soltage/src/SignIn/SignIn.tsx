@@ -1,7 +1,21 @@
+import { useForm } from "react-hook-form"
+import InputField from "../Components/InputField"
+
+type FormData = {
+  username:string
+  password:string
+}
 
 const SignIn = () => {
+  const {register}  = useForm({
+    defaultValues:{
+      username:"",
+      password:"",
+    },
+    mode:'onChange'
+  })
   return (
-    <div>Signin</div>
+    <InputField inputType="text" name="username"/>
   )
 }
 
