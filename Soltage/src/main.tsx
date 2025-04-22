@@ -5,10 +5,18 @@ import { BrowserRouter } from 'react-router-dom'
 import { Amplify } from 'aws-amplify'
 import {ApolloClient,InMemoryCache,ApolloProvider, HttpLink, from} from '@apollo/client'
 import { setContext } from "@apollo/client/link/context";
-import { config } from './Config/config'
+import { amplifyConfig,config } from './Config/config'
 import App from './App'
 
-Amplify.configure(config.amplifyConfig)
+try{
+  console.log(amplifyConfig)
+  Amplify.configure(amplifyConfig)
+}
+catch(err){
+  console.error(err)
+}
+ 
+
 
 
 const httpLink = new HttpLink({
@@ -41,6 +49,7 @@ const client = new ApolloClient({
 });
 
 createRoot(document.getElementById('root')!).render(
+  
   <StrictMode>
     <BrowserRouter>
     <ApolloProvider client={client}>
