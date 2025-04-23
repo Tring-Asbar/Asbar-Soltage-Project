@@ -17,13 +17,13 @@ const InputField: React.FC<InputProps> = ({ ...props }) => {
         type={isPassword ? (showPassword ? 'text' : 'password') : props.type}
         className={props.className} 
       />
-      {isPassword && (
+      {/* {isPassword && (
         <span
         className='toggle-icon'
           onClick={togglePassword}>
           {showPassword ? <VisibilityIcon/> : <VisibilityOffIcon/>}
         </span>
-      )}
+      )} */}
     </div>
   );
 };

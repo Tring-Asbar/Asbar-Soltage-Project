@@ -1,7 +1,8 @@
+import './Notification.scss'
 
 const Notification = () => {
   return (
-    <div>Notification</div>
+    <div className="notification">Notification</div>
   )
 }
 

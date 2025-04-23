@@ -1,7 +1,8 @@
+import './ProjectTracking.scss'
 
 const ProjectTracking = () => {
   return (
-    <div>ProjectTracking</div>
+    <div className='project-tracking'>ProjectTracking</div>
   )
 }
 

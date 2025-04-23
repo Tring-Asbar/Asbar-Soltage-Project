@@ -1,7 +1,7 @@
-
+import './NYSLoad.scss'
 const NYSLoad = () => {
   return (
-    <div>NYSLoad</div>
+    <div className="nys_load">NYSLoad</div>
   )
 }
 

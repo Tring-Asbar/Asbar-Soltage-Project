@@ -1,0 +1,57 @@
+@import url('../../../assets/Styles/global.scss');
+
+.sidebar-container{
+    width:25%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 50px;
+    .sidebar-content{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap:35px;
+        
+        .sidebar-header{
+            img{
+                width: 18vw;
+            }
+            img::after{
+                position: relative !important;
+                background-image: url('../../../assets/images/hamburger.png');
+                z-index: 1000;
+            }
+            
+        }
+        .sidebar-menu{
+            display: flex;
+            flex-direction: column;
+            gap: 35px;
+            .menu{
+                display: flex;
+                gap: 10px; 
+                margin: 0 35px;  
+                justify-content:left;
+                img{
+                    width: 30px;
+                }
+                a{
+                    all: unset;
+                    color:var(--lightFontColor) ;
+                    font-size: 18px;
+                    font-weight: 500;
+                }
+            }
+        }
+    }
+    .sidebar-footer{
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        img{
+            width: 6vw;
+        }
+    }
+}
