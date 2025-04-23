@@ -1,7 +1,7 @@
-
+import './UserManagement.scss'
 const UserManagement = () => {
   return (
-    <div>UserManagement</div>
+    <div className="user-management">UserManagement</div>
   )
 }
 

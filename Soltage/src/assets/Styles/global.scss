@@ -1,0 +1,16 @@
+:root{
+    --primaryColor:#FE6B02;
+    --whiteColor:#FAFBFC;
+    --darkBlueColor: #0E244B;
+    --darkColor:#272C48;
+    --lightColor:#7B91B0;
+    --redColor:#ff0000;
+    --borderColor:#C3D3E2;
+    --disabled:gray;
+    --lightFontColor:#FFFFFF80;
+    ;
+    .error{
+        color: var(--redColor);
+        font-size: 14px;
+    }
+}

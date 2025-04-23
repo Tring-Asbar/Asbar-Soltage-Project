@@ -1,0 +1,11 @@
+@import url('../assets/Styles/global.scss');
+
+.signup_page{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-image: url('../assets/images/AuthTemplateImage.png');
+    background-size: cover;
+    width: 100%;
+    height: 100vh;
+}
