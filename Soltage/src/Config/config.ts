@@ -1,6 +1,6 @@
 export const config = {
-    backend_url: String(import.meta.env.BACKEND_URL),
-    soltage_authenticator_app_name: String(import.meta.env.SOLTAGE_AUTHENTICATOR_APP_NAME),
+    backend_url: String(import.meta.env.VITE_BACKEND_URL),
+    soltage_authenticator_app_name: String(import.meta.env.VITE_SOLTAGE_AUTHENTICATOR_APP_NAME),
 };
 
 export const amplifyConfig= {

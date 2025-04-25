@@ -1,118 +1,115 @@
-import { useForm } from "react-hook-form"
-import InputField from "../Components/InputField"
-import './SignIn.scss'
-import logo from '../assets/images/SoltageLogo.png'
-import Button from "../Components/Button"
-import { signIn } from "aws-amplify/auth"
-import { useNavigate } from "react-router-dom"
-import { useState } from "react"
-
+import React, { useState } from "react";
+import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { signIn } from "aws-amplify/auth";
+import InputField from "../Components/InputField";
+import Button from "../Components/Button";
+import {logo,signinbg} from "../assets/images";
+import CustomSnackbar from "../Components/CustomSnackbar";
+import "./SignIn.scss";
 
 type FormData = {
-  Email:string
-  Password:string
-}
-const fields: {
-  id: string;
-  name: keyof FormData;
-  className: string;
-  placeholder: string;
-  type: string;
-  validation: any;
-}[] = [
-  {
-    id: 'email',
-    name: 'Email',
-    className: 'email',
-    placeholder: 'Enter email',
-    type: 'text',
-    validation: {
-      required: 'Email is required',
-    }
-  },
-  {
-    id: 'password',
-    name: 'Password',
-    className: 'password',
-    placeholder: 'Enter password',
-    type: 'password',
-    validation: {
-      required: 'Password is required',
-    }
-  }
-];
+  Email: string;
+  Password: string;
+};
 
 const SignIn = () => {
-  const navigate = useNavigate()
-  const [loading,setLoading] = useState(false)
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
-  const {register,handleSubmit,formState:{errors}}  = useForm<FormData>({
-    defaultValues:{
-      Email:"",
-      Password:"",
+  const handleOpen = () => {
+    setSnackbarOpen(true);
+  };
+
+  const handleClose = () => {
+    setSnackbarOpen(false);
+  };
+
+  const methods = useForm<FormData>({
+    defaultValues: {
+      Email: "",
+      Password: "",
     },
-    mode:'onChange'
-  })
+    mode: "onChange",
+  });
 
-  const onSubmit= async(values:FormData)=>{
-    setLoading(true)
-    const {Email,Password} = values;
-    try{
-       const user = await signIn({
-        username:Email,
-        password:Password
-      })
-      console.log(values)
-      console.log(user)
-      navigate('/dashboard')
+  const {
+    handleSubmit,
+    
+  } = methods;
+
+  const onSubmit: SubmitHandler<FormData> = async (values) => {
+    setLoading(true);
+    const { Email, Password } = values;
+    try {
+      await signIn({
+        username: Email,
+        password: Password,
+      });
+      navigate("/dashboard");
+    } catch (err) {
+      handleOpen();
+    } finally {
+      setLoading(false);
     }
-    catch(err){
-      console.error(err);
-    }
-    setLoading(false)
-  }
+  };
 
   return (
     <div className="login_page">
+      
       <div className="login_content">
         <h1>Welcome to the Soltage Nexus</h1>
-        <h1>Mangement Platform</h1>
+        <h1>Management Platform</h1>
         <p>The Nexus platform provides a central point of connection and collaboration for Soltage's portfolio of projects.</p>
       </div>
       <div className="login_container">
         <div className="login_sub-container">
-          <img src={logo} alt="" />
+          <img src={signinbg} alt="" />
+          <img src={logo} alt="Soltage Logo" />
           <h1>It’s good to have you back!</h1>
           <p className="content">Please login into this platform using your Soltage Nexus credentials</p>
-          <form onSubmit={handleSubmit(onSubmit)} className="fields">
-        {fields.map((input) => (
-          <div key={input.id} className='form-group'>
-            <label>{input.name}<span> *</span></label><br />
-            <InputField
-              className={input.className}
-              placeholder={input.placeholder}
-              type={input.type}
-              {...register(input.name, input.validation)}
-            />
-            {errors[input.name] && (
-              <p className="error">
-                {errors[input.name]?.message}
-              </p>
-            )}
-          </div>
-        ))}
-          <div className="forgot-password">
-            <div className="fg">Forgot Password</div>
-          </div>
-          <div>
-            <Button className="signin-btn" action='Sign In' disabled={loading}/>
-          </div>
-          </form>
+
+          <FormProvider {...methods}>
+            <form onSubmit={handleSubmit(onSubmit)} className="fields">
+              <div className="form-group">
+                <label>Email <span>*</span></label>
+                <InputField
+                  name="Email"
+                  type="text"
+                  placeholder="Enter email"
+                  className="email"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Password <span>*</span></label>
+                <InputField
+                  name="Password"
+                  type="password"
+                  placeholder="Enter password"
+                  className="password"
+                />
+              </div>
+
+              <div className="forgot-password">
+                <div className="fg">Forgot Password</div>
+              </div>
+
+              <Button className="signin-btn" action="Sign In" type="submit" disabled={loading} />
+            </form>
+          </FormProvider>
         </div>
       </div>
-
+      <CustomSnackbar
+        open={snackbarOpen}
+        message="Incorrect username or password"
+        severity="error"
+        onClose={handleClose}
+      />
     </div>
-  )
-}
+    
+  );
+};
 
-export default SignIn
+export default SignIn;
