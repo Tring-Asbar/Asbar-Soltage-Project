@@ -1,26 +1,46 @@
 @import url('../../../assets/Styles/global.scss');
 
+
 .sidebar-container{
-    width:25%;
+    width:5%;
     height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     gap: 50px;
+    &.open{
+        width: 20%;
+    }
     .sidebar-content{
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap:35px;
+        gap:55px !important;
+        margin-left: 10px;
         
         .sidebar-header{
+            display: flex;
+            align-items:center ;
+            gap: 10px !important;
             img{
-                width: 18vw;
+                width: 4vw;
             }
             img::after{
                 position: relative !important;
                 background-image: url('../../../assets/images/hamburger.png');
                 z-index: 1000;
+            }
+            &.open{
+                margin-left: 10px;
+                img{
+                    width: 18vw;
+                   
+                }
+                
+            }
+            .toggle-btn{
+                width: 2vw !important;
+                cursor: pointer;
             }
             
         }
@@ -28,11 +48,13 @@
             display: flex;
             flex-direction: column;
             gap: 35px;
+            
             .menu{
                 display: flex;
                 gap: 10px; 
                 margin: 0 35px;  
                 justify-content:left;
+                cursor: pointer;
                 img{
                     width: 30px;
                 }
@@ -49,6 +71,7 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
+        justify-content: center;
         align-items: center;
         img{
             width: 6vw;

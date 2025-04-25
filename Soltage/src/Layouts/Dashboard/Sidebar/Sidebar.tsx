@@ -14,7 +14,7 @@ import hamburger from '../../../assets/images/hamburger.png'
 import './Sidebar.scss'
 
 const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   const navigate = useNavigate()
 
@@ -38,16 +38,17 @@ const Sidebar = () => {
     }
   };
   return (
-    <div className="sidebar-container">
+    <div className={`sidebar-container ${isOpen ? 'open' : ''}`}>
       <div className="sidebar-content">
-        <div className="sidebar-header">
+        <div className={`sidebar-header ${isOpen ? 'open' : ''}`}>
         <img src={isOpen?SoltageLogo:Logo} alt="" />
-        <button 
+        {/* <button 
         className="toggle-btn" 
         onClick={toggleMenu}
         >
         {isOpen ? 'close' : 'open'}
-      </button>
+        </button> */}
+        <img onClick={toggleMenu} className="toggle-btn" src={hamburger} alt="hamburger" />
         </div>
       
         <div className="sidebar-menu">

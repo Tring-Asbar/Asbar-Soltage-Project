@@ -1,5 +1,43 @@
 @import url('../../assets/Styles/global.scss');
 
+.createuser-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--whiteColor);
+    height: auto;
+    padding: 20px;
+    border-radius: 20px !important;
+    gap: 20px;
+    .profileimage{
+        display: flex;
+        justify-content: center;
+        background-color: var(--profileBackground);
+        width: 6vw;
+        padding: 10px;
+        border-radius: 14px;
+    }
+    .form-fields{
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        .names{
+            display: flex;
+            gap: 20px;
+        }
+        .centerfield{
+            display: flex;
+            justify-content: center;
+        }
+        .profile-details{
+            display: flex;
+            gap: 20px;
+        }
+
+    }
+}
+
 .user-management{
     display: flex;
     margin: 20px;
@@ -7,4 +45,37 @@
     height: 95vh;
     border-radius: 18px;
     background-color: var(--whiteColor);
+    .user-header{
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        padding: 25px;
+        h1{
+            font-size: 24px;
+            font-weight: 600;color: var(--darkBlueColor);
+        }
+        p{
+            color: var(--lightColor);
+            font-size: 16px;
+            font-weight:400;
+            span{
+                color: var(--highlightColor);
+            }
+        }
+        .create-btn{
+            width: 15vw;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--whiteColor);
+            background-color: var(--primaryColor);
+        }
+    }
 }
