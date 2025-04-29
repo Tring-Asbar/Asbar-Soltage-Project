@@ -33,7 +33,7 @@ const CustomSnackbar: React.FC<CustomSnackbarProps> = ({
         onClose={onClose}
         severity={severity}
         variant="filled"
-        sx={{ width: '100%' }}
+        sx={{ width: '100%'}}
       >
         {message}
       </Alert>

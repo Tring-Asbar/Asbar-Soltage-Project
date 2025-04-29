@@ -34,7 +34,9 @@
         background-color: var(--whiteColor);
         border-radius: 18px;
         padding: 70px 0;
-        
+        background-image: url('../assets/images/signup-illustration.svg');
+        background-position: top right;
+        background-repeat: no-repeat;
         .login_sub-container{
             display: flex;
             flex-direction: column;
@@ -42,13 +44,7 @@
             justify-content: center;
             align-items: center;
             height: 100%;
-            img:first-child{
-                width: 450px;
-                position: absolute;
-                top: 0px;
-                right: 0px;
-               
-            }
+            
             img{
                 width: 150px;
             }

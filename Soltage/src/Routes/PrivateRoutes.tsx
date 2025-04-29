@@ -37,7 +37,7 @@ export const privateRoutes = [
         element:<UserManagement/>
     },
     {
-        path:'/editprofile',
+        path:'/changepassword/editprofile',
         element:<EditProfile/>
     }
 ]

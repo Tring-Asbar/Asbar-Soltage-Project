@@ -1,5 +1,5 @@
 import { FormProvider, useForm , SubmitHandler} from 'react-hook-form';
-import {logo,signinbg} from "../assets/images";
+import {logo} from "../assets/images";
 import InputField from '../Components/InputField';
 import Button from '../Components/Button';
 import { useState , useEffect } from 'react';
@@ -94,7 +94,6 @@ export const SignUp = () => {
       </div>
       <div className="signup_container">
       <div className="signup_sub-container">
-          <img src={signinbg} alt="bg" />
           <img src={logo} alt="Soltage Logo" />
           <h1>Welcome, Sign Up</h1>
           <p className="content">Please create your Soltage Nexus log in credentials by providing the details below</p>
@@ -102,7 +101,7 @@ export const SignUp = () => {
             <form className='fields' onSubmit={handleSubmit(onSubmit)}>
               <div className="form-group">
                 <div className="names">
-                  <div>
+                  <div className='field'>
                   <label>First Name <span>*</span></label><br />
                   <InputField
                     name="FirstName"
@@ -111,7 +110,7 @@ export const SignUp = () => {
                     className="firstname"
                   />
                   </div>
-                  <div>
+                  <div className='field'>
                   <label>Last Name <span>*</span></label><br />
                   <InputField
                     name="LastName"
@@ -158,7 +157,8 @@ export const SignUp = () => {
                   className="department"
                 />
               </div>
-              <Button className="signup-btn" action="Sign Up" type="submit" disabled={loading}/>
+                <Button className="signup-btn" action="Sign Up" type="submit" disabled={loading}/>
+              
             </form>
           </FormProvider>
       </div>

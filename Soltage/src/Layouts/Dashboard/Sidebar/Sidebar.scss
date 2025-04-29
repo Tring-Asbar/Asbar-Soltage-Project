@@ -65,8 +65,7 @@
                 justify-content:left;
                 cursor: pointer;
                 &.active{
-                    border-radius: 5px;
-                    border-left: 5px solid var(--primaryColor);
+                    
                     a{
                         color: var(--whiteColor);
                     }
