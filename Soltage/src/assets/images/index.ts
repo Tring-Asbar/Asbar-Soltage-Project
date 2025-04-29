@@ -11,3 +11,9 @@ export {default as Project} from "./ic--project@2x.png";
 export {default as UserManagement} from "./ic--usermanagement@2x.png";
 export {default as Notification} from "./notification.png";
 export {default as hamburger} from "./hamburger.png";
+export {default as Logout} from './Logout.png'
+export {default as UserManagementActive} from './ic--usermanagementActive@2x.png'
+export {default as ProjectTrackingActive} from './project-tracking-active.png'
+export {default as ProjectActive} from './projectActive.png'
+export {default as NotificationActive} from './notificationActive.png'
+export {default as DashboardActive} from './ic--dashboard@2x.png'

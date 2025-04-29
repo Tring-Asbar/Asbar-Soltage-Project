@@ -8,33 +8,43 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   name: string;
   className?: string;
   placeholder?: string;
+  options?: string[]; 
 }
 
-const InputField: React.FC<InputProps> = ({ name, className, placeholder, type, ...props }) => {
+const InputField: React.FC<InputProps> = ({ name, className, placeholder, type, options, ...props }) => {
+  const required = "Should not be empty"
   const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     formState: { errors },
+    getValues
   } = useFormContext();
 
   const inputValidations = {
     FirstName: {
-      required: "Should not be empty",
+      required: required,
       pattern: {
         value: /^[A-Za-z\s]+$/,
         message: "Enter a valid name",
       },
     },
     LastName: {
-      required: "Should not be empty",
+      required: required,
       pattern: {
         value: /^[A-Za-z\s]+$/,
         message: "Enter a valid name",
       },
     },
-    
-    Password:{
-      required:"Password is required"
+    Password: {
+      required: "Password is required",
+      
+    },
+    OldPassword:{
+      required:required,
+    },
+    ConfirmPassword:{
+      required:required,
+      validate: (value: string) => value === getValues("Password") || "Passwords do not match."
     },
     Email: {
       required: "Email is required",
@@ -43,10 +53,8 @@ const InputField: React.FC<InputProps> = ({ name, className, placeholder, type, 
         message: "Enter a valid email address",
       },
     },
-    
     Department: {
-      required: "Department is required",
-      
+      required: "Please select one",
     },
   };
 
@@ -56,17 +64,34 @@ const InputField: React.FC<InputProps> = ({ name, className, placeholder, type, 
   const error = errors[name]?.message as string;
   const validationRules = inputValidations[name as keyof typeof inputValidations] || {};
 
+  const isDropdown = options && options.length > 0; // NEW
 
   return (
     <div className="input-container">
-      <div className={type==='password'?"input-wrapper":""}>
-        <input
-          {...register(name, validationRules)}
-          type={isPassword?(showPassword ? 'text' : 'password'):type}
-          className={className}
-          placeholder={placeholder}
-          {...props}
-        />
+      <div className={isPassword ? "input-wrapper" : ""}>
+        {isDropdown ? (
+          <select
+            {...register(name, validationRules)}
+            className={className}
+            
+          >
+            <option value="">Select Department</option>
+            {options.map((opt, idx) => (
+              <option key={idx} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            {...register(name, validationRules)}
+            type={isPassword ? (showPassword ? 'text' : 'password') : type}
+            className={className}
+            placeholder={placeholder}
+            {...props}
+          />
+        )}
+
         {isPassword && (
           <span className="toggle-icon" onClick={togglePassword}>
             {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}

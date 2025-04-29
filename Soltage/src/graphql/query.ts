@@ -58,3 +58,12 @@ export const RESEND_INVITE = gql`
     }
   }
 `;
+
+export const GET_USER_STATUS = gql`
+  query GetUserStatus($emailId: String!) {
+    userStatus: GetUserStatus(args: { emailId: $emailId }) {
+      isActive
+      __typename
+    }
+  }
+`;

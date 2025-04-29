@@ -54,9 +54,7 @@
                     border-radius: 10px;
                     outline: none;
                     padding-left: 10px;
-                    :-ms-input-placeholder{
-                        color: var(--lightColor);
-                    }
+                    color: var(--lightColor);
                 }
                 label{
                     font-weight: 500;
@@ -76,6 +74,7 @@
                     border-radius: 10px;
                     outline: none;
                     padding-left: 10px;
+                    color: var(--lightColor);
                 }
                 label{
                     font-weight: 500;
@@ -88,12 +87,16 @@
             display: flex;
             gap: 10px;
             .phone,.department{
-                width: 13vw;
+                width: 13.2vw;
                 height: 5.5vh;
                 border: 1px solid var(--borderColor);
                 border-radius: 10px;
                 outline: none;
                 padding-left: 10px;
+                color: var(--lightColor);
+            }
+            .department{
+                font-weight: 600;
             }
             label{
                 font-weight: 500;
@@ -128,7 +131,7 @@
     display: flex;
     flex-direction: column;
     margin: 20px 20px 20px 0;
-    width:100%;
+    width:93%;
     border-radius: 18px;
     gap: 10px;
     background-color: var(--whiteColor);
@@ -151,8 +154,7 @@
             }
         }
         .create-btn{
-            width: 15vw;
-            padding: 10px;
+            padding: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -200,15 +202,10 @@
     }
     .allUsers{
         display: flex;
+        flex-direction: column;
         height: 60vh;
         scrollbar-width: thin;
-          
         
-          
-        .table-container{
-            display: flex;
-            gap: 0;
-        }
         .table-head{
             .table-header-cell{
                 font-weight: 500;
@@ -217,12 +214,15 @@
                 color: var(--lightColor);
             }
         }
+        
         .table-cell{
             font-weight: 500;
             font-size: 14px;
             color: var(--highlightColor);
             font-family: 'poppins',serif;
-            
+            .hidden{
+                display: none;
+            }            
             .pending,.active,.inactive{
                 display: flex;
                 background-color:var(--pending);
@@ -242,6 +242,7 @@
                     border-radius: 50%;
                 }
                 
+                
             }
             .active{
                 background-color: var(--active);
@@ -260,7 +261,24 @@
             
             
         }
+        img{
+            cursor: pointer;
+        }
         
-        
+    }
+}
+
+// @media (max-width:855px){
+//     .user-management{
+//         width: 60%;
+//     }
+// }
+
+@media (max-width : 1300px){
+    .user-management{
+        // width: 90%;
+        .allUsers{
+            height: 70vh;
+        }
     }
 }

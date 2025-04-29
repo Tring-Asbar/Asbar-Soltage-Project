@@ -33,7 +33,7 @@
         height: auto;
         background-color: var(--whiteColor);
         border-radius: 18px;
-        padding: 100px 0;
+        padding: 70px 0;
         
         .login_sub-container{
             display: flex;
@@ -96,6 +96,7 @@
                     display: flex;
                     justify-content: center;
                 }
+                
                 .forgot-password{
                     
                     .fg{
@@ -168,8 +169,10 @@
 @media (max-width:1500px){
     .login_page{
         flex-direction: column;
-        justify-content: center;
+        justify-content:center ;
+        gap: 30px;
         .login_content{
+            display: none;
             width: 100%;
             text-align: center;
             p{
@@ -178,6 +181,7 @@
         }
         .login_container{
             padding: 20px;
+            
         }
     }
 }

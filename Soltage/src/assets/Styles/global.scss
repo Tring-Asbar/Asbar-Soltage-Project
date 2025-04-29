@@ -24,7 +24,9 @@
 
     .error{
         color: var(--redColor);
-        font-size: 14px;
+        font-weight: 400;
+        font-size: 12px;
         text-align: left;
+        word-wrap: break-word;
     }
 }
