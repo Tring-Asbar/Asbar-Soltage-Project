@@ -1,12 +1,22 @@
 @import url('../assets/Styles/global.scss'); 
-    .toggle-icon {
-      position: absolute;
-      top: 50%;
-      right: 40px;
-      transform: translateY(-50%);
-      cursor: pointer;
-      color: #666;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+
+.input-container{
+  .input-wrapper{
+    display: flex;
+    position: relative;
+  }
+  .toggle-icon {
+    position: absolute;
+    left: 92%;
+    top: 14px;
+    cursor: pointer;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+
+
+    

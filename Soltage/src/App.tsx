@@ -4,7 +4,6 @@ import { privateRoutes } from './Routes/PrivateRoutes'
 import ProtectedRoutes from './Routes/ProtectedRoutes'
 import AuthLayout from './Layouts/Auth/AuthLayout'
 import DashboardLayout from './Layouts/Dashboard/DashboardLayout'
-import './App.scss'
 
 function App() {
 

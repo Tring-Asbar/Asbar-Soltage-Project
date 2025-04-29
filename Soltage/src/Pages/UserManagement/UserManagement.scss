@@ -1,5 +1,8 @@
 @import url('../../assets/Styles/global.scss');
 
+.MuiDialog-root{
+    border-radius: 20px;
+}
 .createuser-container{
     display: flex;
     flex-direction: column;
@@ -7,52 +10,140 @@
     align-items: center;
     background-color: var(--whiteColor);
     height: auto;
-    padding: 20px;
+    padding: 25px;
     border-radius: 20px !important;
-    gap: 20px;
+    gap: 15px;
+    .close-icon{
+        position: relative;
+        left: 48%;
+        cursor: pointer;
+    }
+    h1{
+        text-align: center;
+        font-weight: 600;
+        font-size: 24px;
+        color: var(--darkBlueColor);
+    }
+    p{
+        text-align: center;
+        font-weight: 400;
+        font-size: 14px;
+    }
     .profileimage{
         display: flex;
         justify-content: center;
         background-color: var(--profileBackground);
-        width: 6vw;
         padding: 10px;
         border-radius: 14px;
+        img{
+            width: 84px;
+        }
     }
     .form-fields{
         display: flex;
         flex-direction: column;
-        gap: 30px;
+        gap: 20px;
         .names{
             display: flex;
-            gap: 20px;
+            gap: 10px;
+            .form-group{
+                .firstname,.lastname{
+                    width: 13vw;
+                    height: 5.5vh;
+                    border: 1px solid var(--borderColor);
+                    border-radius: 10px;
+                    outline: none;
+                    padding-left: 10px;
+                    color: var(--lightColor);
+                }
+                label{
+                    font-weight: 500;
+                    font-size: 12px;
+                    color: var(--lightColor);
+                }
+            }
         }
         .centerfield{
             display: flex;
             justify-content: center;
+            .form-group{
+                .email{
+                    width: 27vw;
+                    height: 5.5vh;
+                    border: 1px solid var(--borderColor);
+                    border-radius: 10px;
+                    outline: none;
+                    padding-left: 10px;
+                    color: var(--lightColor);
+                }
+                label{
+                    font-weight: 500;
+                    font-size: 12px;
+                    color: var(--lightColor);
+                }
+            }
         }
         .profile-details{
             display: flex;
-            gap: 20px;
+            gap: 10px;
+            .phone,.department{
+                width: 13.2vw;
+                height: 5.5vh;
+                border: 1px solid var(--borderColor);
+                border-radius: 10px;
+                outline: none;
+                padding-left: 10px;
+                color: var(--lightColor);
+            }
+            .department{
+                font-weight: 600;
+            }
+            label{
+                font-weight: 500;
+                font-size: 12px;
+                color: var(--lightColor);
+            }
         }
-
+        .buttons{
+            display: flex;
+            gap: 15px;
+        
+            .discard,.create{
+                padding: 15px 25px;
+                border:none;
+                border-radius: 10px;
+                cursor: pointer;
+                background-color: var(--primaryColor);
+                font-weight: 600;
+                font-size: 16px;
+                color: var(--whiteColor);
+            }
+            .discard{
+                background-color: var(--lightWhite);
+                font-weight: 500;
+                color: var(--lightColor);
+            }
+        }
     }
 }
 
 .user-management{
     display: flex;
-    margin: 20px;
-    width:100%;
-    height: 95vh;
+    flex-direction: column;
+    margin: 20px 20px 20px 0;
+    width:93%;
     border-radius: 18px;
+    gap: 10px;
     background-color: var(--whiteColor);
     .user-header{
-        width: 100%;
+        width: 95%;
         display: flex;
         justify-content: space-between;
-        padding: 25px;
+        padding: 25px 25px 0 25px;
         h1{
             font-size: 24px;
-            font-weight: 600;color: var(--darkBlueColor);
+            font-weight: 600;
+            color: var(--darkBlueColor);
         }
         p{
             color: var(--lightColor);
@@ -63,8 +154,7 @@
             }
         }
         .create-btn{
-            width: 15vw;
-            padding: 10px;
+            padding: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -76,6 +166,119 @@
             font-size: 16px;
             color: var(--whiteColor);
             background-color: var(--primaryColor);
+        }
+    }
+    .users-table{
+        background-color:var(--fullWhite);
+        margin: 20px;
+        border-radius: 16px;
+        height: 100%;
+        box-shadow: 0px 4px 20px 0px #EEEEEE80;
+        .searchFilter{
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            .search{
+                border: 1px solid var(--lightColor);
+                border-radius: 8px;
+                padding:11.5px 40px 11.5px 10px;
+                font-weight :400;
+                font-size: 14px;
+                outline: none;
+            }
+            .filter{
+                padding: 10px 20px;
+                color: var(--lightColor);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-weight: 600;
+                font-size: 14px;
+                border: none;
+                cursor: pointer;
+                border-radius: 8px;
+            }
+        }
+    }
+    .allUsers{
+        display: flex;
+        flex-direction: column;
+        height: 60vh;
+        scrollbar-width: thin;
+        
+        .table-head{
+            .table-header-cell{
+                font-weight: 500;
+                font-size: 14px;
+                font-family: "poppins",serif;
+                color: var(--lightColor);
+            }
+        }
+        
+        .table-cell{
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--highlightColor);
+            font-family: 'poppins',serif;
+            .hidden{
+                display: none;
+            }            
+            .pending,.active,.inactive{
+                display: flex;
+                background-color:var(--pending);
+                justify-content: center;
+                align-items: center;
+                gap: 5px;
+                width: 80px;
+                height: 25px;
+                padding: 5px;
+                border-radius: 7px;
+                color: var(--pendingStatus);
+                text-transform: capitalize;
+                .statusDot{
+                    background-color:var(--pendingStatus);
+                    width:6px;
+                    height: 6px;
+                    border-radius: 50%;
+                }
+                
+                
+            }
+            .active{
+                background-color: var(--active);
+                color: var(--activeStatus);
+                .statusDot{
+                    background-color:var(--activeStatus);
+                }
+            }
+            .inactive{
+                background-color: var(--inactive);
+                color: var(--inactiveStatus);
+                .statusDot{
+                    background-color: var(--inactiveStatus);
+                }
+            }
+            
+            
+        }
+        img{
+            cursor: pointer;
+        }
+        
+    }
+}
+
+// @media (max-width:855px){
+//     .user-management{
+//         width: 60%;
+//     }
+// }
+
+@media (max-width : 1300px){
+    .user-management{
+        // width: 90%;
+        .allUsers{
+            height: 70vh;
         }
     }
 }

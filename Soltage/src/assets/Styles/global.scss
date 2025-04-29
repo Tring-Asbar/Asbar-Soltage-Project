@@ -10,10 +10,23 @@
     --lightFontColor:#FFFFFF80;
     --highlightColor:#425166;
     --profileBackground:#EFF3F7;
+    --lightWhite:#EFF3F7;
+    --fullWhite:#ffffff;
+    --pending:#FFBB3826;
+    --active:#22C55E2A;
+    --inactive: #EF44441A;
+    --activeStatus:#22C55E;
+    --pendingStatus:#F0A519;
+    --inactiveStatus:#EF4444;
+
+
 
 
     .error{
         color: var(--redColor);
-        font-size: 14px;
+        font-weight: 400;
+        font-size: 12px;
+        text-align: left;
+        word-wrap: break-word;
     }
 }
