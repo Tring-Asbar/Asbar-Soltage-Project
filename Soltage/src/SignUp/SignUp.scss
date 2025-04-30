@@ -36,6 +36,9 @@
         border-radius: 18px;
         margin:20px 0;
         padding: 70px 0;
+        background-image: url('../assets/images/signup-illustration.svg');
+        background-position: top right;
+        background-repeat: no-repeat;
         
         .signup_sub-container{
             display: flex;
@@ -44,13 +47,7 @@
             justify-content: center;
             align-items: center;
             height: 100%;
-            img:first-child{
-                width: 450px;
-                position: absolute;
-                top: 0px;
-                right: 0px;
-               
-            }
+            
             img{
                 width: 150px;
             }
@@ -66,6 +63,7 @@
                 color: var(--lightColor);
                 font-size: 14px;
             }
+            
             .signup-btn{
                 width: 32.8vw;
                 height: 7.5vh;
@@ -83,12 +81,17 @@
                 display: flex;
                 flex-direction: column;
                 gap: 30px;
+                
                 .form-group{
+                    width: 100%;
                     .names{
                         width: 100%;
                         display: flex;
                         flex-direction: row;
-                        gap: 50%;
+                        gap:20px;
+                        .field{
+                            width: 100%;
+                        }
                     }
                     label{
                      color:var(--lightColor) ;
@@ -96,7 +99,7 @@
                     }
                 }
                 .firstname,.lastname,.department,.confirmpassword,.email,.password{
-                    width: 100%;
+                    width: 98%;
                     height:50px;
                     border: 1px solid var(--borderColor);
                     border-radius: 10px;
@@ -105,6 +108,8 @@
                     display: flex;
                     justify-content: center;
                 }
+                
+                
                 .forgot-password{
                     
                     .fg{
@@ -157,6 +162,10 @@
                     .firstname,.lastname,.confirmpassword,.department,.email,.password{
                         width: 100%;
                         font-size: 18px;
+                    }
+                    .signup-btn{
+                        width: 100%;
+                        font-size: 18px;
                     } 
                 }
                 .forgot-password{
@@ -165,10 +174,8 @@
                         text-align: center;
                     }
                 }
-                .signup-btn{
-                    width: 100%;
-                    font-size: 18px;
-                }
+                
+                
             }
         }
     }
@@ -186,13 +193,17 @@
             p{
                 display: none;
             }
-            .signup-btn{
-                width: 100%;
-                font-size: 18px
-            }
+            
         }
         .signup_container{
             padding: 20px;
+            .signup_sub-container{
+                .fields{
+                    .signup-btn{
+                        width: 100%;
+                    }
+                }
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import SoltageLogo from "../../../assets/images/logoimg1@2x.png";
 import Logo from "../../../assets/images/shape@2x.png";
+import { select } from "../../../assets/images";
 import {userprofile,Dashboard,ProjectTracking,Project,UserManagement,Notification,hamburger,DashboardActive,ProjectActive,ProjectTrackingActive,NotificationActive,UserManagementActive} from "../../../assets/images"; 
 import images from "../../../assets/icons/index";
 import "./Sidebar.scss";
@@ -46,15 +47,16 @@ const Sidebar = ({ user }: sidebarProps) => {
 
         <div className="sidebar-menu">
           {filteredMenu.map((menu) => {
-            const isActive = location.pathname === menu.path;
+            const isActive = menu.path.includes(location.pathname);
 
            return isOpen ? (
               <div key={menu.path} className={`menu ${isActive ? "active" : ""}`} onClick={() => navigate(menu.path)}>
-                <img src={isActive ? menu.activeIcon : menu.icon} alt="menu icon" />
-                <Link to={menu.path}>{menu.label}</Link>
+                  <img src={isActive ? menu.activeIcon : menu.icon} alt="menu icon" />
+                  <Link to={menu.path}>{menu.label}</Link>                
               </div>
             ) : (
               <div key={menu.path} className={`menu ${isActive ? "active" : ""}`}onClick={() => navigate(menu.path)}>
+                {/* <img src={select} alt="select" /> */}
                 <img src={isActive ? menu.activeIcon : menu.icon} alt="menu icon" />
               </div>
             );

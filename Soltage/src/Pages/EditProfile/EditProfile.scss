@@ -1,0 +1,94 @@
+@import url('../../assets/Styles/global.scss');
+
+.edit-profile{
+    display: flex;
+    margin: 20px 20px 20px 0;
+    width:100%;
+    height: 95vh;
+    border-radius: 18px;
+    background-color: var(--whiteColor);
+    .edit-content{
+        display: flex;
+        width: 70%;
+        flex-direction: column;
+        justify-content: center;
+        height: 75%;
+        border-radius: 10px;
+        margin: 20px 20px 20px 0;
+        background-color:var(--fullWhite);
+        box-shadow: 0px 4px 20px 0px #EEEEEE80;
+        padding: 20px;
+        .edit-bg{
+            height: 35%;
+            background-image: url('../../assets/images/banner-bg@2x.png');
+            background-size: cover;
+            position: relative;
+            .profile{
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 5px;
+                position: absolute;
+                left: 42%;
+                top:80px;
+                img{
+                    width: 150px;
+                }
+            }
+            
+        }
+        .edit-field{
+            height: 65%;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            gap: 140px;
+            .edit-form{
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                .row{
+                    display: flex;
+                    gap: 30px;
+                    .fields{
+                        width: 100%;
+                    }
+                    label{
+                        font-weight: 500;
+                        font-size: 12px;
+                        color: var(--lightColor);
+                    }
+                    .field{
+                        width:95% !important;
+                        border-radius: 8px;
+                        height: 35px;
+                        outline: none;
+                        padding-left: 10px;
+                        border: 1px solid var(--borderColor);
+                    }
+                }
+                .edit,.discard{
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    padding: 5px 13px;
+                    border-radius: 10px;
+                    color: var(--fullWhite);
+                    font-weight: 600;
+                    font-size: 16px;
+                    border: none;
+                    cursor: pointer;
+                    background-color: var(--primaryColor);
+                }
+                .disabled{
+                    display: none;
+                }
+                .discard{
+                    font-weight: 500;
+                    color: var(--lightColor);
+                    background-color: var(--lightWhite);
+                }
+            }
+        }
+    }
+}

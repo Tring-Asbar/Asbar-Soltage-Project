@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { signIn } from "aws-amplify/auth";
 import InputField from "../Components/InputField";
 import Button from "../Components/Button";
-import {logo,signinbg} from "../assets/images";
+import {logo} from "../assets/images";
 import CustomSnackbar from "../Components/CustomSnackbar";
 import "./SignIn.scss";
 
@@ -65,7 +65,7 @@ const SignIn = () => {
       </div>
       <div className="login_container">
         <div className="login_sub-container">
-          <img src={signinbg} alt="" />
+          
           <img src={logo} alt="Soltage Logo" />
           <h1>It’s good to have you back!</h1>
           <p className="content">Please login into this platform using your Soltage Nexus credentials</p>

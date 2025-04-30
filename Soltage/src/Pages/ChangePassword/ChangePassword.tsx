@@ -1,12 +1,11 @@
 import Button from '../../Components/Button'
-import { Logout } from '../../assets/images'
-import { signOut } from 'aws-amplify/auth'
 import './ChangePassword.scss'
-import { Link, useNavigate , useOutletContext} from 'react-router-dom'
+import { useOutletContext} from 'react-router-dom'
 import { FormProvider, useForm , SubmitHandler } from 'react-hook-form'
 import InputField from '../../Components/InputField'
 import { useMutation } from '@apollo/client'
 import { CHANGE_PASSWORD } from '../../graphql/mutation'
+import ChangePasswordSidebar from './ChangePasswordSidebar'
 
 type ChangePasswordProps = {
   OldPassword:string
@@ -19,16 +18,10 @@ type OutletContextType = {
 
 const ChangePassword = () => {
 
-  const menus=[
-    {path:'/changepassword', label:'Change Password'},
-    {path:'/editprofile',label:'Edit Profile'}
-  ]
-
   const { user } = useOutletContext<OutletContextType>();
 
   const [changeUserPassword] = useMutation(CHANGE_PASSWORD)
 
-  const navigate = useNavigate();
   const methods = useForm<ChangePasswordProps>({
     defaultValues:{
       OldPassword:'',
@@ -65,35 +58,10 @@ const ChangePassword = () => {
     }
   }
 
-  const handleLogout = async () => {
-      try {
-        await signOut();
-        localStorage.clear();
-        navigate("/signin");
-      } catch (err) {
-        console.error(err);
-      }
-    };
 
   return (
     <div className="change-password">
-      <div className='changepassword-sidebar'>
-        <div className='content'>
-          <div>
-          <h1>My Account</h1>
-          <p>Home/Account</p>
-          </div>
-          
-          {menus.map((menu)=>(
-            <div key={menu.path}>
-              <Link to={menu.path}>{menu.label}</Link>
-            </div>
-          ))}
-        </div>
-        <div>
-          <Button icon={Logout} action="Logout" onClick={handleLogout}  className="logout"/>
-        </div>
-      </div>
+      <ChangePasswordSidebar/>
       <div className='change-password-field'>
         <div className='change-password-content'>
           <div>
