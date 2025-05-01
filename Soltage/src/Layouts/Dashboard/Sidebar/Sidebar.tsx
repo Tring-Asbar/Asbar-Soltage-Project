@@ -51,13 +51,13 @@ const Sidebar = ({ user }: sidebarProps) => {
 
            return isOpen ? (
               <div key={menu.path} className={`menu ${isActive ? "active" : ""}`} onClick={() => navigate(menu.path)}>
-                  <img src={isActive ? menu.activeIcon : menu.icon} alt="menu icon" />
+                  <img src={isActive ? menu.activeIcon : menu.icon} alt="menu icon" className="menu-icon" />
                   <Link to={menu.path}>{menu.label}</Link>                
               </div>
             ) : (
               <div key={menu.path} className={`menu ${isActive ? "active" : ""}`}onClick={() => navigate(menu.path)}>
-                {/* <img src={select} alt="select" /> */}
-                <img src={isActive ? menu.activeIcon : menu.icon} alt="menu icon" />
+                {isActive&&<img src={select} alt="select"  className="select"/>}
+                <img src={isActive ? menu.activeIcon : menu.icon} alt="menu icon" className="menu-icon" />
               </div>
             );
           })}
@@ -66,7 +66,8 @@ const Sidebar = ({ user }: sidebarProps) => {
 
       <div className="sidebar-footer">
         <div className="footer-left">
-          <img src={userprofile} alt="user profile" />
+          
+          <img src={user?.profileImage || userprofile} alt="user profile" />
           {isOpen && (
             <>
               <p>{user?.firstName} {user?.lastName}</p>

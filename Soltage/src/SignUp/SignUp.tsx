@@ -1,72 +1,87 @@
-import { FormProvider, useForm , SubmitHandler} from 'react-hook-form';
-import {logo} from "../assets/images";
+import { FormProvider, useForm, SubmitHandler } from 'react-hook-form';
+import { logo } from "../assets/images";
 import InputField from '../Components/InputField';
 import Button from '../Components/Button';
-import { useState , useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { SIGNUP } from '../graphql/mutation';
-import { useLazyQuery, useMutation } from '@apollo/client';
-import { useNavigate , useParams } from 'react-router-dom';
-import './SignUp.scss'
-import { GET_USER_STATUS } from '../graphql/query';
+import { useMutation } from '@apollo/client';
+import { useNavigate, useLocation } from 'react-router-dom';
+import './SignUp.scss';
+import { signUp,signIn , setUpTOTP, verifyTOTPSetup } from "aws-amplify/auth";
+import { CircularProgress } from '@mui/material';
+import QRCode from 'qrcode';
 
 type FormData = {
-  FirstName: string
-  LastName:string
-  Email:string
-  Password: string
-  ConfirmPassword:string
-  Department:string
+  FirstName: string;
+  LastName: string;
+  Email: string;
+  Password: string;
+  ConfirmPassword: string;
+  Department: string;
 };
 
 export const SignUp = () => {
-  const navigate = useNavigate()
-   const [loading, setLoading] = useState(false);
-   const [userSignUp] = useMutation(SIGNUP);
-   const { token } = useParams();
-   const [userStatus] = useLazyQuery(GET_USER_STATUS)
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [loading, setLoading] = useState(false);
+  const [showMFA, setShowMFA] = useState(false);
+  const [qrCodeURL, setQrCodeURL] = useState('');
+  const [user, setUser] = useState<any>(null);
+  const [mfaCode, setMfaCode] = useState('');
+
+  const [userSignUp] = useMutation(SIGNUP);
 
   const methods = useForm<FormData>({
-      defaultValues: {
-        Email: "",
-        Password: "",
-        FirstName: "",
-        LastName: "",
-        ConfirmPassword: "",
-        Department: "",
-      },
-      mode: "onChange",
-    });
-  const {handleSubmit,setValue} = methods;
+    defaultValues: {
+      Email: "",
+      Password: "",
+      FirstName: "",
+      LastName: "",
+      ConfirmPassword: "",
+      Department: "",
+    },
+    mode: "onChange",
+  });
+
+  const { handleSubmit, setValue } = methods;
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (token) {
-        try {
-          const { data } = await userStatus({
-            variables: { emailId: token },
-            fetchPolicy: 'network-only', 
-          });
-          
-          if (data?.userStatus) {
-            const { firstName, lastName, emailId, department } = data.userStatus;
-            setValue('FirstName', firstName || '');
-            setValue('LastName', lastName || '');
-            setValue('Email', emailId || '');
-            setValue('Department', department || '');
-          }
-        } catch (error) {
-          console.error('Error fetching user status:', error);
-        }
-      }
-    };
+    const query = new URLSearchParams(location.search);
+    const userEncoded = query.get('user');
 
-    fetchUserData();
-  }, [token, userStatus, setValue]);
+    if (userEncoded) {
+      try {
+        const decoded = atob(userEncoded);
+        const parsed = JSON.parse(decoded);
+
+        setValue('FirstName', parsed.firstName || '');
+        setValue('LastName', parsed.lastName || '');
+        setValue('Email', parsed.emailId || '');
+        setValue('Department', parsed.role || '');
+      } catch (error) {
+        console.error("Failed to decode user token:", error);
+      }
+    }
+  }, [location.search, setValue]);
 
   const onSubmit: SubmitHandler<FormData> = async (values) => {
     setLoading(true);
     try {
-      const { data } = await userSignUp({
+      
+      await signUp({
+        username: values.Email,
+        password: values.Password,
+        options: {
+          userAttributes: {
+            email: values.Email,
+            name: `${values.FirstName} ${values.LastName}`,
+            given_name: values.FirstName,
+            family_name: values.LastName,
+          },
+        },
+      });
+      
+      await userSignUp({
         variables: {
           UserSignupInput: {
             firstName: values.FirstName,
@@ -76,8 +91,27 @@ export const SignUp = () => {
           },
         },
       });
-      console.log('Signup Success:', data);
-      navigate('/dashboard')
+
+      const signedInUser = await signIn({
+        username: values.Email,
+        password: values.Password,
+      });
+
+      setUser(signedInUser);
+
+      
+
+      const secretCode = await setUpTOTP();
+      const otpAuthUrl = `otpauth://totp/${import.meta.env.VITE_SOLTAGE_AUTHENTICATOR_APP_NAME}:${values.Email}?secret=${secretCode}&issuer=${import.meta.env.VITE_SOLTAGE_AUTHENTICATOR_APP_NAME}`;
+
+      QRCode.toDataURL(otpAuthUrl, (err, url) => {
+        if (!err && url) {
+          setQrCodeURL(url);
+          setShowMFA(true);
+        } else {
+          console.error("QR code generation failed", err);
+        }
+      });
     } catch (error) {
       console.error('Signup Error:', error);
     } finally {
@@ -85,84 +119,82 @@ export const SignUp = () => {
     }
   };
 
+  const handleMfaVerify = async () => {
+    try {
+      await verifyTOTPSetup({ code: mfaCode });
+      alert("MFA Setup Successful!");
+      navigate('/signin');
+    } catch (err) {
+      alert("Invalid MFA code. Try again.");
+      console.error("MFA Verify Failed:", err);
+    }
+  };
+
   return (
     <div className="signup_page">
       <div className="signup_content">
         <h1>Welcome to the Soltage Nexus</h1>
-        <h1>Mangement Platform</h1>
+        <h1>Management Platform</h1>
         <p>The Nexus platform provides a central point of connection and collaboration for Soltage's portfolio of projects.</p>
       </div>
       <div className="signup_container">
-      <div className="signup_sub-container">
-          <img src={logo} alt="Soltage Logo" />
+        {loading?<div className="loader"><CircularProgress color="inherit"/></div>:<></>}
+        <div className="signup_sub-container">
+          <img src={logo} alt="Soltage Logo" className='soltage' />
           <h1>Welcome, Sign Up</h1>
           <p className="content">Please create your Soltage Nexus log in credentials by providing the details below</p>
+          {!showMFA ? (
           <FormProvider {...methods}>
             <form className='fields' onSubmit={handleSubmit(onSubmit)}>
               <div className="form-group">
                 <div className="names">
                   <div className='field'>
-                  <label>First Name <span>*</span></label><br />
-                  <InputField
-                    name="FirstName"
-                    type="text"
-                    placeholder="Enter first name"
-                    className="firstname"
-                  />
+                    <label>First Name <span>*</span></label><br />
+                    <InputField name="FirstName" type="text" placeholder="Enter first name" className="firstname" readOnly />
                   </div>
                   <div className='field'>
-                  <label>Last Name <span>*</span></label><br />
-                  <InputField
-                    name="LastName"
-                    type="text"
-                    placeholder="Enter last name"
-                    className="lastname"
-                  />
+                    <label>Last Name <span>*</span></label><br />
+                    <InputField name="LastName" type="text" placeholder="Enter last name" className="lastname" readOnly />
                   </div>
                 </div>
               </div>
               <div className="form-group">
-              <label>Email<span>*</span></label><br />
-                <InputField
-                  name="Email"
-                  type="text"
-                  placeholder="Enter email"
-                  className="email"
-                />
+                <label>Email<span>*</span></label><br />
+                <InputField name="Email" type="text" placeholder="Enter email" className="email" readOnly/>
               </div>
               <div className="form-group">
-              <label>Password<span>*</span></label><br />
-                <InputField
-                  name="Password"
-                  type="password"
-                  placeholder="Enter password"
-                  className="password"
-                />
+                <label>Password<span>*</span></label><br />
+                <InputField name="Password" type="password" placeholder="Enter password" className="password" />
               </div>
               <div className="form-group">
-              <label>Confirm Password<span>*</span></label><br />
-                <InputField
-                  name="ConfirmPassword"
-                  type="password"
-                  placeholder="Re-Type password"
-                  className="confirmpassword"
-                />
+                <label>Confirm Password<span>*</span></label><br />
+                <InputField name="ConfirmPassword" type="password" placeholder="Re-Type password" className="confirmpassword" />
               </div>
               <div className="form-group">
-              <label>Department<span>*</span></label><br />
-                <InputField
-                  name="Department"
-                  type="text"
-                  placeholder="Enter department"
-                  className="department"
-                />
+                <label>Department<span>*</span></label><br />
+                <InputField name="Department" type="text" placeholder="Enter department" className="department" readOnly/>
               </div>
-                <Button className="signup-btn" action="Sign Up" type="submit" disabled={loading}/>
-              
+              <Button className="signup-btn" action="Sign Up" type="submit" disabled={loading} />
             </form>
           </FormProvider>
-      </div>
+          ):(
+          <div className="mfa_setup">
+            <h2>Setup Google Authenticator</h2>
+            {qrCodeURL && <img src={qrCodeURL} alt="Scan this QR code" />}
+            <p>Scan the QR code using Google Authenticator app and enter the 6-digit code below.</p>
+            <input
+              type="text"
+              placeholder="Enter MFA Code"
+              value={mfaCode}
+              onChange={(e) => setMfaCode(e.target.value)}
+            />
+            <div className="mfa_buttons">
+              <button onClick={handleMfaVerify} className="verify-btn">Add MFA</button>
+            </div>
+          </div>
+          )}
+        </div>
       </div>
     </div>
-  )
-}
+  );
+};

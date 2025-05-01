@@ -15,19 +15,20 @@
     TableRow,
     Menu,
     MenuItem,
-    TablePagination,
     AlertColor,  
   } from '@mui/material';
-  import InputField from '../../Components/InputField';
-  import Button from '../../Components/Button';
-  import UserIcon from '../../assets/icons/profilePlaceholder.svg';
-  import { debounce } from 'lodash';
-  import { plus, filter, close, menu } from '../../assets/images';
-  import { CREATE_USER, UPDATE_USER_STATUS , DELETE_USER } from '../../graphql/mutation';
-  import { RESEND_INVITE , GET_USERS} from '../../graphql/query';
-  import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
-  import './UserManagement.scss';
-  import CustomSnackbar from '../../Components/CustomSnackbar';
+import InputField from '../../Components/InputField';
+import Button from '../../Components/Button';
+import { debounce} from 'lodash';
+import { plus, filter, close, menu , Search } from '../../assets/images';
+import { CREATE_USER, UPDATE_USER_STATUS , DELETE_USER , EDIT_USER } from '../../graphql/mutation';
+import { RESEND_INVITE , GET_USERS } from '../../graphql/query';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import './UserManagement.scss';
+import CustomSnackbar from '../../Components/CustomSnackbar';
+import images from '../../assets/icons';
+import { useOutletContext } from 'react-router-dom';
+import {CircularProgress} from '@mui/material';
 
   type UserFormData = {
     FirstName: string;
@@ -36,8 +37,13 @@
     Phone: string;
     Department: string;
   };
+  type OutletContextType = {
+    user: any; 
+  };
 
   const UserManagement = () => {
+    const { user } = useOutletContext<OutletContextType>();
+    const {UserIcon , Left, Right , DoubleLeft , DoubleRight , SelectedLeft,SelectedRight,SelectedDoubleLeft , SelectedDoubleRight} = images
     const [searchInput, setSearchInput] = useState('');
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -48,10 +54,12 @@
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [resendInviteLink] = useLazyQuery(RESEND_INVITE)
     const [isEditMode, setIsEditMode] = useState(false);
-
+    const [updateUser] = useMutation(EDIT_USER)
     const [showFilter, setShowFilter] = useState(false);
+    const [ id,setId] = useState<string>("")
     const [selectedRole, setSelectedRole] = useState('All Roles');
     const [selectedStatus, setSelectedStatus] = useState('All Status');
+
    
   
     const { data, loading, error, refetch } = useQuery(GET_USERS, {
@@ -62,25 +70,16 @@
         limit: rowsPerPage,
         offset: page * rowsPerPage,
       },
-      fetchPolicy: 'network-only',
     });
 
-    const handleSearch = () => {
-      refetch({
-        search: searchInput || '%%',
-        roles: selectedRole === 'All Roles' ? ['Admin', 'Executives', 'Standard'] : [selectedRole],
-        statuses: selectedStatus === 'All Status' ? ['PENDING', 'ACTIVE', 'INACTIVE'] : [selectedStatus],
-        limit: rowsPerPage,
-        offset: page * rowsPerPage,
-      });
-    };
+    
   
     const handleReset = () => {
       setSelectedRole('All Roles');
       setSelectedStatus('All Status');
       setShowFilter(false);
       refetch({
-        search: searchInput || '%%',
+        search: `%${searchInput}%` || '%%',
         roles: ['Admin', 'Executives', 'Standard'],
         statuses: ['PENDING', 'ACTIVE', 'INACTIVE'],
         limit: rowsPerPage,
@@ -92,7 +91,7 @@
       const roles = selectedRole === 'All Roles' ? ['Admin', 'Executives', 'Standard'] : [selectedRole];
       const statuses = selectedStatus === 'All Status' ? ['PENDING', 'ACTIVE', 'INACTIVE'] : [selectedStatus];
       refetch({
-        search: searchInput || '%%',
+        search: `%${searchInput}%` || '%%',
         roles,
         statuses,
         limit: rowsPerPage,
@@ -111,21 +110,11 @@
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-  
-    const handleChangePage = (event: unknown, newPage: number) => {
-      setPage(newPage);
-    };
-  
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-      setRowsPerPage(parseInt(event.target.value, 10));
-      setPage(0);
-    };
-  
 
     const debouncedSearch = useCallback(
       debounce((value: string) => {
         refetch({
-          search: value || '%%',
+          search: `%${value}%` || '%%',
           roles: ['Admin', 'Executives', 'Standard'],
           statuses: ['PENDING', 'ACTIVE', 'INACTIVE'],
           limit: 10,
@@ -163,7 +152,11 @@
     const setIsOpenState = (value: boolean) => {
       setIsOpen(value);
       reset();
-      setIsEditMode(false); 
+      
+      if (!value) {
+        setSelectedUser(null);
+        setIsEditMode(false);
+      } 
     };
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -177,8 +170,10 @@
 
     const handleMenuClose = () => {
       setAnchorEl(null);
-      setSelectedUser(null);
+      setSelectedUser(null)
     };
+
+
 
     const getMenuOptions = (status: string) => {
       switch (status) {
@@ -196,31 +191,65 @@
     
 
     const onSubmit: SubmitHandler<UserFormData> = async (values) => {
-      try {
-        const { data: response } = await createUser({
-          variables: {
-            createUserInput: {
-              firstName: values.FirstName,
-              lastName: values.LastName,
-              email: values.Email,
-              phoneNumber: values.Phone,
-              department: values.Department
+      if(isEditMode){
+        try{
+          const {data:update} = await updateUser({
+            variables:{
+              updateUserInput:{
+                id,
+                firstName:values.FirstName,
+                lastName:values.LastName,
+                email:values.Email,
+                phoneNumber:values.Phone,
+                department:values.Department,
+              }
+              
             }
+          })
+          
+          if(update?.updateUser){
+            setSnackbarOpen(true);
+            setMessage(update?.updateUser?.message)
+            setType("success")
+            refetch();
+            
           }
-        });
-
-        if (response.createUser.userCreated) {
-          setSnackbarOpen(true);
-          setMessage(response.createUser.userCreated.message)
-          setType("success")
-          setIsOpen(false);
-          refetch();
-        } else {
-          console.error('Failed to create user.');
         }
-      } catch (err) {
-        console.error('Error creating user:', err);
+        catch(err){
+          console.error('Error updating user:',err);
+        }
+        setIsEditMode(false);
+        setSelectedUser(null)
       }
+      else{
+        try {
+          
+          const { data: response } = await createUser({
+            variables: {
+              createUserInput: {
+                firstName: values.FirstName,
+                lastName: values.LastName,
+                email: values.Email,
+                phoneNumber: values.Phone,
+                department: values.Department
+              }
+            }
+          });
+  
+          if (response.createUser.userCreated) {
+            setSnackbarOpen(true);
+            setMessage(response.createUser.userCreated.message)
+            setType("success")
+            refetch();
+          } else {
+            console.error('Failed to create user.');
+          }
+        } catch (err) {
+          console.error('Error creating user:', err);
+        }
+      }
+      setIsOpenState(false);
+      
     };
 
     const menuActions: { [key: string]: () => void } = {
@@ -229,12 +258,13 @@
           const { data :userStatusDeactive } = await updateUserStatus({
             variables: {
               updateuserstatusInput: {
-                userId: selectedUser.id,
+                userId: selectedUser?.id,
                 userStatus: 'INACTIVE'
               }
             }
           });
           if (userStatusDeactive?.updateUserStatus?.response) {
+            
             setSnackbarOpen(true)
             setMessage(userStatusDeactive.updateUserStatus.response.message)
             setType("error")
@@ -243,6 +273,7 @@
         } catch (err) {
           console.error('Error deactivating user:', err);
         }
+        setSelectedUser(null)
       },
 
       'Activate User': async () => {
@@ -256,6 +287,8 @@
             }
           });
           if (userStatusActive?.updateUserStatus?.response) {
+            console.log(user?.userId)
+            console.log(selectedUser?.id)
             setSnackbarOpen(true)
             setMessage(userStatusActive.updateUserStatus.response.message)
             setType("success")
@@ -264,6 +297,7 @@
         } catch (err) {
           console.error('Error activating user:', err);
         }
+        setSelectedUser(null)
       },
 
       'Delete': async () => {
@@ -286,6 +320,7 @@
         catch(err){
           console.error("Error Deleting User:",err);
         }
+        setSelectedUser(null)
       },
 
       'Resend Invite': async() => {
@@ -306,6 +341,7 @@
         } catch (err) {
           console.error('Error sending mail:', err);
         }
+        setSelectedUser(null)
       },
 
       'Edit': () => {
@@ -319,7 +355,9 @@
             Phone: selectedUser.phoneNumber || '',
             Department: selectedUser.department || '',
           });
+          setId(selectedUser.id)
         }
+        setSelectedUser(null)
       },
 
       'Reset MFA': () => {
@@ -337,12 +375,29 @@
       }
     };
 
-    if (loading){ 
-      return <div>Loading...</div>
+    const navigateToStartEnd = (direction:string)=>{
+      if(direction=='start'){
+        setPage(0)
+      }
+      else if (direction === 'end') {
+        const totalCount = data?.totalUsers?.aggregate?.count ?? 0;
+        const lastPage = Math.max(0, Math.ceil(totalCount / rowsPerPage) - 1);
+        setPage(lastPage);
+      }
     }
+
+    const handleChangePage = (direction: string) => {
+      if (direction === 'next') {
+        setPage(page + 1);
+      } else if (direction === 'previous' && page > 0) {
+        setPage(page - 1);
+      }
+    };
+    
     if (error){ 
       return <div>Error loading users!</div>
     }
+    
 
     return (
       <div className='user-management'>
@@ -374,7 +429,7 @@
                 <p>{isEditMode?"Please verify the below details and edit as necessary":"Please provide the following details"}</p>
               </div>
               <div>
-                <img src={UserIcon} alt='User' />
+                <img src={UserIcon} alt='User' className='profile-placeholder'/>
               </div>
               <form className='form-fields' onSubmit={handleSubmit(onSubmit)}>
                 <div className='names'>
@@ -405,6 +460,7 @@
                       name='Email'
                       placeholder='Enter email'
                       className='email'
+                      readOnly={isEditMode}
                     />
                   </div>
                 </div>
@@ -445,7 +501,7 @@
 
         <div className='users-table'>
           <div className='searchFilter'>
-            <div>
+            <div className='search-input'>
               <input
                 type='text'
                 name='search'
@@ -454,6 +510,7 @@
                 value={searchInput}
                 onChange={handleInputChange}
               />
+              <img src={Search} alt="search" />
             </div>
             <div>
               <Button icon={filter} action='Filter' className='filter' onClick={() => setShowFilter(!showFilter)} />
@@ -504,28 +561,30 @@
                   </TableRow>
                 </TableHead>
                 <TableBody className='table-body'>
-                  {data?.users?.map((user: any, index: number) => (
+                  {loading && <div className='loader'><CircularProgress color='inherit'/></div>}
+                  {data?.users?.map((u: any, index: number) => (
                     <TableRow key={index}>
-                      <TableCell className='table-cell'>{user.firstName || '-'}</TableCell>
-                      <TableCell className='table-cell'>{user.lastName || '-'}</TableCell>
-                      <TableCell className='table-cell'>{user.emailId}</TableCell>
-                      <TableCell className='table-cell'>{user.department}</TableCell>
+                      <TableCell className='table-cell'>{u.firstName || '-'}</TableCell>
+                      <TableCell className='table-cell'>{u.lastName || '-'}</TableCell>
+                      <TableCell className='table-cell'>{u.emailId}</TableCell>
+                      <TableCell className='table-cell'>{u.department}</TableCell>
                       <TableCell className='table-cell'>
-                        <div className={user.status === 'PENDING' ? 'pending' : user.status === 'ACTIVE' ? 'active' : 'inactive'}>
+                        <div className={u.status === 'PENDING' ? 'pending' : u.status === 'ACTIVE' ? 'active' : 'inactive'}>
                           <div className='statusDot'></div>
-                          <span>{user.status.toLowerCase()}</span>
+                          <span>{u.status.toLowerCase()}</span>
                         </div>
                       </TableCell>
                       <TableCell className='table-cell'>
-                        
+                        {user?.userId !== u?.id
+                        &&
                         <img
                           src={menu}
                           alt='menu'
                           width={20}
-                          onClick={(e) => handleMenuOpen(e, user)}
+                          onClick={(e) => handleMenuOpen(e, u)}
                         />
-                        
-                        
+                       }
+                      
                       </TableCell>
                     </TableRow>
                   ))}
@@ -534,17 +593,37 @@
             </TableContainer>
             
           </div>
-          <TablePagination
-              className='pagination-left'
-              rowsPerPageOptions={[10,20,30]}
-              component="div"
-              count={data?.totalUsers?.aggregate?.count ?? 0}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
+          <div className='pagination'>
+          <div className="rows-per-page">
+            <label htmlFor="rowsPerPage">Rows per page </label>
+            <select
+              id="rowsPerPage"
+              value={rowsPerPage}
+              onChange={(e) => {
+                setRowsPerPage(Number(e.target.value));
+                setPage(0); 
+              }}
+            >
+            <option value={10}>10 Rows</option>
+            <option value={20}>20 Rows</option>
+            <option value={30}>30 Rows</option>
+            </select>
+          </div>
+            <div className='pagination-buttons'>
+            <Button className='nav-btn' icon={page === 0?DoubleLeft:SelectedDoubleLeft} action='' disabled={page === 0} onClick={()=>navigateToStartEnd('start')}/>
+
+            <Button className='nav-btn' icon={page===0?Left:SelectedLeft}onClick={() => handleChangePage('previous')} disabled={page === 0}action=''/>
+
+            <p><span>{`${(page * rowsPerPage) + 1} - ${Math.min((page * rowsPerPage) + rowsPerPage, data?.totalUsers?.aggregate?.count ?? 0)}`}</span> of {data?.totalUsers?.aggregate?.count ?? 0}</p>
+
+            <Button className='nav-btn' icon={data?.users?.length < rowsPerPage?Right:SelectedRight} onClick={() => handleChangePage('next')} disabled={data?.users?.length < rowsPerPage} action=''/>
+
+            <Button className='nav-btn' icon={data?.users?.length < rowsPerPage?DoubleRight:SelectedDoubleRight} action='' disabled={data?.users?.length < rowsPerPage} onClick={()=>navigateToStartEnd('end')}/>
+            </div>
+          </div>
+          
         </div>
+        
 
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
           {selectedUser &&

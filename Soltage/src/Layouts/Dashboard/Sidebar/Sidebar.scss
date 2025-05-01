@@ -6,9 +6,11 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;    
-    transition: width 0.3s ease;
+    align-items: center;  
     justify-content: space-between;
+    position: sticky;
+    top: 0;
+    left: 0;
     &.open{
         width: 20%;
         
@@ -25,6 +27,7 @@
             align-items:center ;
             gap: 10px !important;
             .logo{
+                width: 30px;
               margin-left: 35px;
               background-color: var(--darkColor);
               box-shadow: 0px 0px 1px 0px #EEEEEE80;
@@ -65,13 +68,18 @@
                 justify-content:left;
                 cursor: pointer;
                 &.active{
-                    
+                    gap:35px;
                     a{
                         color: var(--whiteColor);
                     }
+                    select{
+                    width: 8px;
+                    height: 5px;
+                    }
                 }
-                img{
+                .menu-icon{
                     width: 30px;
+                    
                 }
                 a{
                     all: unset;
@@ -113,9 +121,9 @@
 
 @media (max-width : 1300px){
   .sidebar-container{
-    width: 50px;
+    width: 10%; 
     &.open{
-      width: 25% !important;
+      width: 40% !important;
     }
   }
 }

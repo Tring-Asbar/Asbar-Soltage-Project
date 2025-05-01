@@ -37,6 +37,13 @@
         background-image: url('../assets/images/signup-illustration.svg');
         background-position: top right;
         background-repeat: no-repeat;
+        position: relative;
+        .loader{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            background: transparent;
+        }
         .login_sub-container{
             display: flex;
             flex-direction: column;
@@ -45,7 +52,7 @@
             align-items: center;
             height: 100%;
             
-            img{
+            .soltage{
                 width: 150px;
             }
             h1{

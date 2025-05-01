@@ -6,6 +6,7 @@ import InputField from "../Components/InputField";
 import Button from "../Components/Button";
 import {logo} from "../assets/images";
 import CustomSnackbar from "../Components/CustomSnackbar";
+import { CircularProgress } from "@mui/material";
 import "./SignIn.scss";
 
 type FormData = {
@@ -54,8 +55,10 @@ const SignIn = () => {
       setLoading(false);
     }
   };
+  
 
   return (
+   
     <div className="login_page">
       
       <div className="login_content">
@@ -64,9 +67,10 @@ const SignIn = () => {
         <p>The Nexus platform provides a central point of connection and collaboration for Soltage's portfolio of projects.</p>
       </div>
       <div className="login_container">
+        {loading?<div className="loader"><CircularProgress color="inherit"/></div>:<></>}
         <div className="login_sub-container">
           
-          <img src={logo} alt="Soltage Logo" />
+          <img src={logo} alt="Soltage Logo"  className="soltage"/>
           <h1>It’s good to have you back!</h1>
           <p className="content">Please login into this platform using your Soltage Nexus credentials</p>
 
@@ -79,6 +83,7 @@ const SignIn = () => {
                   type="text"
                   placeholder="Enter email"
                   className="email"
+                  readOnly={loading}
                 />
               </div>
 
@@ -89,6 +94,7 @@ const SignIn = () => {
                   type="password"
                   placeholder="Enter password"
                   className="password"
+                  readOnly={loading}
                 />
               </div>
 

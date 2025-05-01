@@ -2,7 +2,7 @@ import './Notification.scss'
 
 const Notification = () => {
   return (
-    <div className="notification">Notification</div>
+    <div className="notification">Coming Soon</div>
   )
 }
 

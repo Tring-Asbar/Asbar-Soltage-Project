@@ -5,14 +5,16 @@ import { fetchUserAttributes } from "aws-amplify/auth";
 import Sidebar from "./Sidebar/Sidebar";
 import "./DashboardLayout.scss";
 import { GET_USER_BY_EMAIL } from "../../graphql/query";
+import { CircularProgress } from "@mui/material";
 
 const DashboardLayout = () => {
   const [userData, setUserData] = useState(null);
-  const [getUser, { data, loading, error }] = useLazyQuery(GET_USER_BY_EMAIL);
+  const [getUser, { data, loading, error ,refetch}] = useLazyQuery(GET_USER_BY_EMAIL);
 
   useEffect(() => {
     const fetchEmailAndUser = async () => {
       try {
+        refetch();
         const attributes = await fetchUserAttributes();
         const email = attributes.email;
         if (email) {
@@ -24,7 +26,7 @@ const DashboardLayout = () => {
     };
 
     fetchEmailAndUser();
-  }, [getUser]);
+  }, [refetch,getUser]);
 
   useEffect(() => {
     if (data?.users?.[0]) {
@@ -33,7 +35,7 @@ const DashboardLayout = () => {
   }, [data]);
 
   if (loading){
-    return <div className="loader">Loading dashboard...</div>;
+    return <div className="loader"><CircularProgress color="inherit"/></div>;
   }
   if (error){
     return <div className="error">Failed to load user data</div>;

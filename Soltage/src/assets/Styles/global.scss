@@ -31,4 +31,10 @@
         text-align: left;
         word-wrap: break-word;
     }
+    .loader{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        background: transparent;
+    }
 }

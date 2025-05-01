@@ -7,12 +7,15 @@
     height: 95vh;
     border-radius: 18px;
     background-color: var(--whiteColor);
+    .edit-layout{
+      width: 90%;
+    }
     .edit-content{
         display: flex;
-        width: 70%;
+        width: 95%;
         flex-direction: column;
         justify-content: center;
-        height: 75%;
+        height: 70%;
         border-radius: 10px;
         margin: 20px 20px 20px 0;
         background-color:var(--fullWhite);
@@ -31,9 +34,15 @@
                 position: absolute;
                 left: 42%;
                 top:80px;
-                img{
-                    width: 150px;
+                .upload-img{
+                  
+                  img{
+                    width: 120px;
+                    cursor: pointer;
+                  }
                 }
+                
+                
             }
             
         }
@@ -47,6 +56,9 @@
                 display: flex;
                 flex-direction: column;
                 gap: 10px;
+                .image-file{
+                  display: none;
+              }
                 .row{
                     display: flex;
                     gap: 30px;
@@ -92,3 +104,64 @@
         }
     }
 }
+
+@media (max-width:1024px){
+    .edit-profile{
+        justify-content: center;
+        .edit-layout{
+          height: 98vh;
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .edit-profile {
+      margin: 10px;
+      height: auto;
+  
+      .edit-content {
+        width: 95%;
+        margin: 0;
+        height: 90%;
+        padding: 15px;
+  
+        .edit-bg {
+          height: 200px;
+  
+          .profile {
+            left: 50%;
+            transform: translateX(-50%);
+            top: 110px;
+  
+            img {
+              width: 100px;
+            }
+          }
+        }
+  
+        .edit-field {
+          gap: 50px;
+  
+          .edit-form {
+            gap: 15px;
+  
+            .row {
+              flex-direction: column;
+              gap: 15px;
+  
+              .field {
+                width: 100% !important;
+              }
+            }
+  
+            .edit,
+            .discard {
+              width: 100%;
+              padding: 10px;
+              font-size: 14px;
+            }
+          }
+        }
+      }
+    }
+  }

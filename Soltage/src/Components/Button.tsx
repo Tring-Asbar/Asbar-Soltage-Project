@@ -10,7 +10,7 @@ interface ComponentProps{
 const Button : React.FC<ComponentProps> = ({type,action,disabled=false,className,onClick,icon}) => {
   return (
     <button type={type} disabled={disabled} className={className} onClick={onClick}>
-      {icon && <img src={icon} alt="icon" width={30}/>}
+      {icon && <img src={icon} alt="icon" className="icon"/>}
       {action}
       </button>
   )

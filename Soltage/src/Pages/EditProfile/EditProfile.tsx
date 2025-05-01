@@ -9,15 +9,19 @@ import { useForm , FormProvider, SubmitHandler} from 'react-hook-form'
 import { useOutletContext } from 'react-router-dom'
 import InputField from '../../Components/InputField'
 import { UPDATE_PROFILE } from '../../graphql/mutation'
-import { useMutation } from '@apollo/client'
+import { PRESIGNED_URL } from '../../graphql/query'
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client'
 import { AlertColor } from '@mui/material'
+import images from '../../assets/icons'
 import CustomSnackbar from '../../Components/CustomSnackbar'
+import moment from 'moment'
 
 type FormData = {
   FirstName:string
   LastName:string 
   Phone:string
   Email:string
+  ProfileImage:string
 }
 
 type OutletContextType = {
@@ -25,15 +29,17 @@ type OutletContextType = {
 };
 
 const EditProfile = () => {
+  const {UserIcon} = images
 
   const { user } = useOutletContext<OutletContextType>();
 
   const [update_users] = useMutation(UPDATE_PROFILE)
+  const[getUploadSignedUrl] = useLazyQuery(PRESIGNED_URL)
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
       const [message,setMessage] = useState("");
       const[type,setType] = useState<AlertColor | undefined>();
-      
+      const [profileImage,setProfileImage] = useState<string>(UserIcon)
       const[isEditing,setIsEditing] = useState(false)
       const handleCloseSnackbar = () => setSnackbarOpen(false);
   
@@ -43,7 +49,8 @@ const EditProfile = () => {
         FirstName:user?.firstName,
         LastName:user?.lastName,
         Phone:user?.phoneNumber,
-        Email:user?.emailId
+        Email:user?.emailId,
+        ProfileImage:profileImage
       },
       mode :'onChange'
   })
@@ -58,10 +65,65 @@ const EditProfile = () => {
         FirstName: user.firstName || '',
         LastName: user.lastName || '',
         Phone: user.phoneNumber || '',
-        Email: user.emailId || ''
+        Email: user.emailId || '',
       });
+      setProfileImage(user?.profileImage || UserIcon)
     }
   }, [user, reset]);
+
+
+  const handleUploadtoS3 = async (file: File, setImageURL: (url: string) => void) => {
+    try {
+      const originalName = file.name.substring(0, file.name.lastIndexOf(".")) || file.name;
+      const sanitizedFileName = originalName.replace(/ /g, '_');
+      const lastDotIndex = file.name.lastIndexOf('.');
+      const extension = lastDotIndex !== -1 ? file.name.slice(lastDotIndex) : '';
+  
+      const newFileName = `s3://soltage-media-dev/images/${sanitizedFileName}-${moment().unix()}${extension}`;
+      console.log(newFileName)
+  
+      const { data } = await getUploadSignedUrl({
+         variables: { 
+            key: newFileName,
+            bucketName:import.meta.env.VITE_BUCKET_NAME
+        } 
+      });
+  
+      const preSignedUrl = data?.getUploadSignedUrl?.preSignedUrl;
+      console.log(preSignedUrl)
+      if (!preSignedUrl){
+        throw new Error("Failed to get presigned URL");
+      }
+  
+      const uploadRes = await fetch(preSignedUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": file.type
+        },
+        body: file,
+      });
+  
+      if (uploadRes.ok) {
+        const uploadedURL = `${import.meta.env.VITE_FRONTEND_URL}${newFileName}`;
+        setImageURL(uploadedURL);
+        console.log(uploadedURL) 
+        
+      } else {
+        throw new Error("Upload to S3 failed");
+      }
+    } catch (err) {
+      console.error("Image upload failed", err);
+    }
+  };
+
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleUploadtoS3(file, setProfileImage);
+   }
+    
+  };
 
   
 
@@ -76,16 +138,15 @@ const EditProfile = () => {
             u_email_id:values.Email,
             u_phone_number:values.Phone,
             u_department:user?.department,
-            u_status:user?.userStatus
+            u_status:user?.userStatus,
+            u_profile_image:profileImage
           }
         }
       })
       if(data?.update_users){
         setSnackbarOpen(true);
         setMessage("Profile updated successfully")
-        setType("success")
-        reset()
-        
+        setType("success")        
       }
     }
     catch(err){
@@ -98,10 +159,13 @@ const EditProfile = () => {
   return (
     <div className="edit-profile">
         <ChangePasswordSidebar/>
+      <div className='edit-layout'>
       <div className='edit-content'>
          <div className='edit-bg'>
           <div className='profile'>
-            <img src={Avatar} alt=""/>
+            <div className='upload-img'>
+            <img src={profileImage} alt='User' className='profile-placeholder' onClick={() =>{isEditing && document.getElementById("fileInput")?.click()} } />
+            </div>
             <h3>{user?.firstName} {user?.lastName}</h3>
             <p>{user?.department}</p>
           </div>
@@ -110,6 +174,7 @@ const EditProfile = () => {
           <div></div>
           <FormProvider {...methods}>
             <form className='edit-form' onSubmit={handleSubmit(onSubmit)}>
+            <InputField id='fileInput' name='ProfileImage' type="file" accept='image/*' className='image-file'onChange={handleImageUpload} />
               <div className='row'>
                 <div className='fields'>
                   <label>First Name</label><br />
@@ -139,6 +204,7 @@ const EditProfile = () => {
             </form>
           </FormProvider>
          </div>
+      </div>
       </div>
       <CustomSnackbar
           open={snackbarOpen}
