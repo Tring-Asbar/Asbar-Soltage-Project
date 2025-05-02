@@ -118,7 +118,7 @@ const EditProfile = () => {
 
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const max_size = 1 * 1024 * 1024
+    const max_size = 3 * 1024 * 1024
     const file = e.target.files?.[0];
     const type = ['image/jpeg', 'image/png','image/svg']
     if (file) {
@@ -133,7 +133,6 @@ const EditProfile = () => {
         setType("error")
       }
       else{
-        
         handleUploadtoS3(file, setProfileImage);
       }
      
