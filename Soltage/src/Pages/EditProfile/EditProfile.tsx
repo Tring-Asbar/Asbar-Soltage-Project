@@ -120,16 +120,16 @@ const EditProfile = () => {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const max_size = 3 * 1024 * 1024
     const file = e.target.files?.[0];
-    const type = ['image/jpeg', 'image/png','image/svg']
+    const type = ['image/jpeg', 'image/png','image/svg', 'image/jpg']
     if (file) {
       if(file.size>max_size){
         setSnackbarOpen(true);
-        setMessage("File size exceeded")
+        setMessage("File size upto 3 MB ")
         setType("error")
       }
       else if(!type.includes(file.type)){
         setSnackbarOpen(true);
-        setMessage("Please upload an image")
+        setMessage("Image should be in .jpg,.jpeg,.png or .svg")
         setType("error")
       }
       else{
