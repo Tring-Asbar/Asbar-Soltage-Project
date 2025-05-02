@@ -188,10 +188,7 @@ import {CircularProgress} from '@mui/material';
       }
     };
 
-    
-
-    const onSubmit: SubmitHandler<UserFormData> = async (values) => {
-      if(isEditMode){
+    const editUser = async(values:any)=>{
         try{
           const {data:update} = await updateUser({
             variables:{
@@ -220,6 +217,14 @@ import {CircularProgress} from '@mui/material';
         }
         setIsEditMode(false);
         setSelectedUser(null)
+        setId('')
+      
+    }
+    
+
+    const onSubmit: SubmitHandler<UserFormData> = async (values) => {
+      if(isEditMode){
+        editUser(values)
       }
       else{
         try {

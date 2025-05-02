@@ -56,7 +56,7 @@ const Sidebar = ({ user }: sidebarProps) => {
               </div>
             ) : (
               <div key={menu.path} className={`menu ${isActive ? "active" : ""}`}onClick={() => navigate(menu.path)}>
-                {isActive&&<img src={select} alt="select"  className="select"/>}
+                {/* {isActive && <img src={select} alt="select"  className="select"/>} */}
                 <img src={isActive ? menu.activeIcon : menu.icon} alt="menu icon" className="menu-icon" />
               </div>
             );

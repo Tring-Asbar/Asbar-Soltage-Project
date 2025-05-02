@@ -455,6 +455,17 @@
     .user-management{
         width: 85%;
         .users-table{
+            .filter-container{
+                position: absolute;
+                left: 58%;
+                top:25%
+            }
+            .pagination{
+                gap: 0;
+                .pagination-buttons{
+                    gap: 0;
+                }
+            }
             .searchFilter{
                 padding: 0;
             }

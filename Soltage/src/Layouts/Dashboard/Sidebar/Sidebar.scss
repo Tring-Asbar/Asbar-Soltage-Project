@@ -68,7 +68,6 @@
                 justify-content:left;
                 cursor: pointer;
                 &.active{
-                    gap:35px;
                     a{
                         color: var(--whiteColor);
                     }
@@ -96,15 +95,15 @@
         .footer-left{
           display: flex;
           flex-direction: column;
-          gap:10px;
+          gap:13px;
           img{
             width: 70px;
           }
           
         p{
             color: var(--whiteColor);
-            font-weight: 600;
-            font-size: 14px;
+            font-weight: 500;
+            font-size: 20px;
             line-height: 2px;
         }
         h1{

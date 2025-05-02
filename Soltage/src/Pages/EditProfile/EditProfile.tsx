@@ -118,9 +118,25 @@ const EditProfile = () => {
 
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const max_size = 1 * 1024 * 1024
     const file = e.target.files?.[0];
+    const type = ['image/jpeg', 'image/png','image/svg']
     if (file) {
-      handleUploadtoS3(file, setProfileImage);
+      if(file.size>max_size){
+        setSnackbarOpen(true);
+        setMessage("File size exceeded")
+        setType("error")
+      }
+      else if(!type.includes(file.type)){
+        setSnackbarOpen(true);
+        setMessage("Please upload an image")
+        setType("error")
+      }
+      else{
+        
+        handleUploadtoS3(file, setProfileImage);
+      }
+     
    }
     
   };
@@ -143,6 +159,7 @@ const EditProfile = () => {
           }
         }
       })
+      
       if(data?.update_users){
         setSnackbarOpen(true);
         setMessage("Profile updated successfully")
