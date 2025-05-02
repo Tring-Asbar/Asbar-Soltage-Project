@@ -5,14 +5,15 @@ import { BrowserRouter } from 'react-router-dom'
 import { Amplify } from 'aws-amplify'
 import {ApolloClient,InMemoryCache,ApolloProvider, HttpLink, from} from '@apollo/client'
 import { setContext } from "@apollo/client/link/context";
+import { onError } from '@apollo/client/link/error';
 import { amplifyConfig,config } from './Config/config'
 import App from './App'
-  
 Amplify.configure(amplifyConfig)
-  
-  const httpLink = new HttpLink({
+
+const httpLink = new HttpLink({
     uri :config.backend_url,
   })
+
 
   export const getAccessTokenFromLocalStorage = () => {
     const keys = Object.keys(localStorage);
@@ -33,9 +34,28 @@ Amplify.configure(amplifyConfig)
       },
     };
   });
+  const errorLink = onError(({ graphQLErrors}) => {
+    let shouldLogout = false;  
+  
+    if (graphQLErrors) {
+      for (const err of graphQLErrors) {
+        if (err.message.includes('JWTExpired')) {
+          shouldLogout = true;
+          break;
+        }
+      }
+    }
+  
+    if (shouldLogout) {
+      localStorage.clear();
+      setTimeout(() => {
+        window.location.href = '/signin';
+      }, 2000);
+    }
+  });
 
   const client = new ApolloClient({
-    link: from([authLink,httpLink]),
+    link: from([errorLink,authLink,httpLink]),
     cache:new InMemoryCache(),
   });
   const root = document.getElementById("root") as HTMLElement

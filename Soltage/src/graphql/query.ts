@@ -67,3 +67,13 @@ export const GET_USER_STATUS = gql`
     }
   }
 `;
+
+export const PRESIGNED_URL = gql`
+  query GetUploadSignedUrl($bucketName: String!, $key: String!) {
+    getUploadSignedUrl(bucketName: $bucketName, key: $key) {
+      preSignedUrl
+      region
+    }
+  }
+`;
+

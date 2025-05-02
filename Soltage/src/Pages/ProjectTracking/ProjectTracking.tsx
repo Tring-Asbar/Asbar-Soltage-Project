@@ -2,7 +2,7 @@ import './ProjectTracking.scss'
 
 const ProjectTracking = () => {
   return (
-    <div className='project-tracking'>ProjectTracking</div>
+    <div className='project-tracking'>Coming Soon</div>
   )
 }
 

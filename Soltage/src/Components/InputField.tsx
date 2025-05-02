@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import images from '../assets/icons';
 import './InputField.scss'
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -13,6 +12,8 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 const InputField: React.FC<InputProps> = ({ name, className, placeholder, type, options, ...props }) => {
   const required = "Should not be empty"
+
+  const {EyeOpen,EyeClose} = images
   const [showPassword, setShowPassword] = useState(false);
   const {
     register,
@@ -22,14 +23,14 @@ const InputField: React.FC<InputProps> = ({ name, className, placeholder, type, 
 
   const inputValidations = {
     FirstName: {
-      required: required,
+      required,
       pattern: {
         value: /^[A-Za-z\s]+$/,
         message: "Enter a valid name",
       },
     },
     LastName: {
-      required: required,
+      required,
       pattern: {
         value: /^[A-Za-z\s]+$/,
         message: "Enter a valid name",
@@ -40,10 +41,10 @@ const InputField: React.FC<InputProps> = ({ name, className, placeholder, type, 
       
     },
     OldPassword:{
-      required:required,
+      required,
     },
     ConfirmPassword:{
-      required:required,
+      required,
       validate: (value: string) => value === getValues("Password") || "Passwords do not match."
     },
     Email: {
@@ -94,7 +95,7 @@ const InputField: React.FC<InputProps> = ({ name, className, placeholder, type, 
 
         {isPassword && (
           <span className="toggle-icon" onClick={togglePassword}>
-            {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+            <img src={showPassword ? EyeOpen : EyeClose} alt="" className='eye-icon' />
           </span>
         )}
       </div>

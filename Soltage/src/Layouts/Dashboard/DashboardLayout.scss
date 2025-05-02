@@ -1,19 +1,26 @@
 @import url('../../assets/Styles/global.scss');
 
 .dashboard-container {
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   display: flex;
   background-color: var(--darkColor);
   gap: 0;
   padding: 0;
   margin: 0; 
+  
 
 
   @media (max-width: 1300px) {
     width: 100%;
     height: 100%;
     justify-content: space-between; 
+    .open ~ .user-management{
+      width: 55%;
+    }
+    .open ~ .change-password{
+      width: 55%;
+    }
   }
 
   @media (max-width: 855px) {
@@ -32,7 +39,6 @@
     width: 100%;
     height: 100%;
     justify-content: space-between;
-    padding: 1rem; 
   }
   
 .dashboard-container::-webkit-scrollbar{
