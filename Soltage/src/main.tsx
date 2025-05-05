@@ -6,6 +6,7 @@ import { Amplify } from 'aws-amplify'
 import {ApolloClient,InMemoryCache,ApolloProvider, HttpLink, from} from '@apollo/client'
 import { setContext } from "@apollo/client/link/context";
 import { onError } from '@apollo/client/link/error';
+import { ToastContainer } from 'react-toastify'
 import { amplifyConfig,config } from './Config/config'
 import App from './App'
 Amplify.configure(amplifyConfig)
@@ -65,6 +66,7 @@ const httpLink = new HttpLink({
     <BrowserRouter>
     <ApolloProvider client={client}>
       <App />
+      <ToastContainer/>
     </ApolloProvider>
     </BrowserRouter>
   </StrictMode>,

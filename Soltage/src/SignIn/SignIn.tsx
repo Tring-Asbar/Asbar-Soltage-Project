@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { signIn, confirmSignIn } from "aws-amplify/auth";
 import InputField from "../Components/InputField";
 import Button from "../Components/Button";
-import { logo } from "../assets/images";
-import CustomSnackbar from "../Components/CustomSnackbar";
+import { logo , close } from "../assets/images";
 import { CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import "./SignIn.scss";
+import ToastMessage from "../Components/ToastMessage";
 
 type FormData = {
   Email: string;
@@ -17,13 +17,10 @@ type FormData = {
 const SignIn = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [mfaDialogOpen, setMfaDialogOpen] = useState(false);
   const [mfaCode, setMfaCode] = useState("");
   const [userSession, setUserSession] = useState<any>(null);
 
-  const handleOpen = () => setSnackbarOpen(true);
-  const handleClose = () => setSnackbarOpen(false);
 
   const methods = useForm<FormData>({
     defaultValues: {
@@ -50,21 +47,11 @@ const SignIn = () => {
       ) {
         setUserSession(nextStep)
         setMfaDialogOpen(true);
-        
       }
-      
-
-      // const challenge = (user as any).challengeName || (user as any).ChallengeName;
-
-      // if (challenge === "SOFTWARE_TOKEN_MFA") {
-      //   setUserSession(user);
-        
-      // } else {
-      //   navigate("/dashboard");
-      // }
+    
     } catch (err) {
       console.log("cffdjd")
-      handleOpen();
+      ToastMessage({message:'Incorrect username or password',toastType:'error'})
     } finally {
       setLoading(false);
     }
@@ -82,9 +69,10 @@ const SignIn = () => {
       });
       
       setMfaDialogOpen(false);
+      ToastMessage({message:'Signin successful!',toastType:'success'})
       navigate("/dashboard");
     } catch (error) {
-      handleOpen();
+      ToastMessage({message:"Incorrect MFA Code",toastType:'error'})
     } finally {
       setLoading(false);
     }
@@ -128,28 +116,27 @@ const SignIn = () => {
       </div>
 
       <Dialog className="mfa-dialog" open={mfaDialogOpen} onClose={() => setMfaDialogOpen(false)}>
-        <DialogTitle>Enter MFA Code</DialogTitle>
+        <img src={close} alt="closeicon" onClick={()=>setMfaDialogOpen(false)}/>
+        <h1>Multi-factor Authentication</h1>
+        <p>Check Your Mobile Device Use Authenticator App to approve the request to Log Into the Soltage Nexus System</p>
+        
         <DialogContent>
+          <label>Enter an MFA code to complete sign-in.</label>
           <input
             name="MFA"
             type="text"
-            placeholder="Enter MFA code"
+            placeholder="Enter code"
             value={mfaCode}
             onChange={(e) => setMfaCode(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
-        <Button action="Verify" onClick={() => handleMfaSubmit()} />
-
+        <Button className="discard" action="Discard" onClick={() => setMfaDialogOpen(false)}/>
+        <Button className="verify" action="Verify" onClick={() => handleMfaSubmit()} />
+        
         </DialogActions>
       </Dialog>
 
-      <CustomSnackbar
-        open={snackbarOpen}
-        message="Incorrect credentials or MFA code"
-        severity="error"
-        onClose={handleClose}
-      />
     </div>
   );
 };

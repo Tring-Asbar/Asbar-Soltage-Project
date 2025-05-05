@@ -1,5 +1,5 @@
 import { FormProvider, useForm, SubmitHandler } from 'react-hook-form';
-import { logo } from "../assets/images";
+import { logo, close } from "../assets/images";
 import InputField from '../Components/InputField';
 import Button from '../Components/Button';
 import { useState, useEffect } from 'react';
@@ -8,10 +8,10 @@ import { useMutation } from '@apollo/client';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './SignUp.scss';
 import { updateMFAPreference } from 'aws-amplify/auth';
-
-import { signIn , setUpTOTP, verifyTOTPSetup } from "aws-amplify/auth";
-import { CircularProgress, Dialog } from '@mui/material';
-import QRCode from 'qrcode';
+import { signIn, setUpTOTP, verifyTOTPSetup } from "aws-amplify/auth";
+import { CircularProgress, Dialog, DialogActions } from '@mui/material';
+import QRCode from 'react-qr-code';
+import ToastMessage from '../Components/ToastMessage';
 
 type FormData = {
   FirstName: string;
@@ -27,7 +27,7 @@ export const SignUp = () => {
   const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [showMFA, setShowMFA] = useState(false);
-  const [qrCodeURL, setQrCodeURL] = useState('');
+  const [otpAuthUrl, setOtpAuthUrl] = useState('');
   const [user, setUser] = useState<any>(null);
   const [mfaCode, setMfaCode] = useState('');
 
@@ -69,21 +69,7 @@ export const SignUp = () => {
   const onSubmit: SubmitHandler<FormData> = async (values) => {
     setLoading(true);
     try {
-      
-      // await signUp({
-      //   username: values.Email,
-      //   password: values.Password,
-      //   options: {
-      //     userAttributes: {
-      //       email: values.Email,
-      //       name: `${values.FirstName} ${values.LastName}`,
-      //       given_name: values.FirstName,
-      //       family_name: values.LastName,
-      //     },
-      //   },
-      // });
-
-       await userSignUp({
+      await userSignUp({
         variables: {
           UserSignupInput: {
             firstName: values.FirstName,
@@ -98,24 +84,17 @@ export const SignUp = () => {
         username: values.Email,
         password: values.Password,
       });
-      
 
       setUser(signedInUser);
 
-      const secretCode = await setUpTOTP();
-      console.log(secretCode);
-    
-      const otpAuthUrl = `otpauth://totp/${import.meta.env.VITE_SOLTAGE_AUTHENTICATOR_APP_NAME}:${values.Email}?secret=${secretCode.sharedSecret}&issuer=${import.meta.env.VITE_SOLTAGE_AUTHENTICATOR_APP_NAME}`;
-      console.log(otpAuthUrl)
-
-      QRCode.toDataURL(otpAuthUrl, (err, url) => {
-        if (!err && url) {
-          setQrCodeURL(url);
-          setShowMFA(true);
-        } else {
-          console.error("QR code generation failed", err);
-        }
-      });
+      const totpSetupDetails = await setUpTOTP();
+      const otpUrl = totpSetupDetails.getSetupUri(
+        import.meta.env.VITE_SOLTAGE_AUTHENTICATOR_APP_NAME,
+        values.Email
+      );
+      console.log(otpUrl.toString())
+      setOtpAuthUrl(otpUrl.toString());
+      setShowMFA(true);
     } catch (error) {
       console.error('Signup Error:', error);
     } finally {
@@ -127,16 +106,16 @@ export const SignUp = () => {
     try {
       await verifyTOTPSetup({ code: mfaCode });
       await updateMFAPreference({
-        totp: 'PREFERRED',  
+        totp: 'PREFERRED',
         sms: 'DISABLED',
       });
-      
-      alert("MFA Setup Successful!");
-      setShowMFA(false)
-      localStorage.clear()
+
+      ToastMessage({message:"MFA Setup Successful!",toastType:'success'});
+      setShowMFA(false);
+      localStorage.clear();
       navigate('/signin');
     } catch (err) {
-      alert("Invalid MFA code. Try again.");
+      ToastMessage({message:"Invalid MFA code. Try again." , toastType:'error'})
       console.error("MFA Verify Failed:", err);
     }
   };
@@ -149,7 +128,7 @@ export const SignUp = () => {
         <p>The Nexus platform provides a central point of connection and collaboration for Soltage's portfolio of projects.</p>
       </div>
       <div className="signup_container">
-        {loading?<div className="loader"><CircularProgress color="inherit"/></div>:<></>}
+        {loading && <div className="loader"><CircularProgress color="inherit" /></div>}
         <div className="signup_sub-container">
           <img src={logo} alt="Soltage Logo" className='soltage' />
           <h1>Welcome, Sign Up</h1>
@@ -160,17 +139,17 @@ export const SignUp = () => {
                 <div className="names">
                   <div className='field'>
                     <label>First Name <span>*</span></label><br />
-                    <InputField name="FirstName" type="text" placeholder="Enter first name" className="firstname"/>
+                    <InputField name="FirstName" type="text" placeholder="Enter first name" className="firstname" />
                   </div>
                   <div className='field'>
                     <label>Last Name <span>*</span></label><br />
-                    <InputField name="LastName" type="text" placeholder="Enter last name" className="lastname"  />
+                    <InputField name="LastName" type="text" placeholder="Enter last name" className="lastname" />
                   </div>
                 </div>
               </div>
               <div className="form-group">
                 <label>Email<span>*</span></label><br />
-                <InputField name="Email" type="text" placeholder="Enter email" className="email" readOnly/>
+                <InputField name="Email" type="text" placeholder="Enter email" className="email" readOnly />
               </div>
               <div className="form-group">
                 <label>Password<span>*</span></label><br />
@@ -182,18 +161,20 @@ export const SignUp = () => {
               </div>
               <div className="form-group">
                 <label>Department<span>*</span></label><br />
-                <InputField name="Department" type="text" placeholder="Enter department" className="department" readOnly/>
+                <InputField name="Department" type="text" placeholder="Enter department" className="department" readOnly />
               </div>
               <Button className="signup-btn" action="Sign Up" type="submit" disabled={loading} />
             </form>
           </FormProvider>
-          
         </div>
 
         <Dialog open={showMFA}>
           <div className="mfa_setup">
+            <img src={close} alt="close"  onClick={() => setShowMFA(false)} />
             <h2>Setup Google Authenticator</h2>
-            {qrCodeURL && <img src={qrCodeURL} alt="Scan this QR code" />}
+            {otpAuthUrl && (
+              <QRCode value={otpAuthUrl} size={200}  />
+            )}
             <p>Scan the QR code using Google Authenticator app and enter the 6-digit code below.</p>
             <input
               type="text"
@@ -202,7 +183,10 @@ export const SignUp = () => {
               onChange={(e) => setMfaCode(e.target.value)}
             />
             <div className="mfa_buttons">
-              <Button onClick={handleMfaVerify} className="verify-btn" action="Add MFA"/>
+              <DialogActions>
+                <Button action='Discard' className='discard-btn' onClick={() => setShowMFA(false)} />
+                <Button onClick={handleMfaVerify} className="verify-btn" action="Add MFA" />
+              </DialogActions>
             </div>
           </div>
         </Dialog>

@@ -9,10 +9,10 @@ import InputField from '../../Components/InputField'
 import { UPDATE_PROFILE } from '../../graphql/mutation'
 import { PRESIGNED_URL } from '../../graphql/query'
 import { useLazyQuery, useMutation} from '@apollo/client'
-import { AlertColor , DialogActions } from '@mui/material'
+import {  DialogActions } from '@mui/material'
 import images from '../../assets/icons'
-import CustomSnackbar from '../../Components/CustomSnackbar'
 import moment from 'moment'
+import ToastMessage from '../../Components/ToastMessage'
 
 type FormData = {
   FirstName:string
@@ -34,12 +34,8 @@ const EditProfile = () => {
   const [update_users] = useMutation(UPDATE_PROFILE)
   const[getUploadSignedUrl] = useLazyQuery(PRESIGNED_URL)
 
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-      const [message,setMessage] = useState("");
-      const[type,setType] = useState<AlertColor | undefined>();
-      const [profileImage,setProfileImage] = useState<string>(UserIcon)
-      const[isEditing,setIsEditing] = useState(false)
-      const handleCloseSnackbar = () => setSnackbarOpen(false);
+  const [profileImage,setProfileImage] = useState<string>(UserIcon)
+  const[isEditing,setIsEditing] = useState(false)
   
 
   const methods = useForm<FormData>({
@@ -122,24 +118,16 @@ const EditProfile = () => {
     const imageType = ['image/jpeg', 'image/png','image/svg', 'image/jpg']
     if (file) {
       if(file.size>MAX_SIZE){
-        setSnackbarOpen(true);
-        setMessage("File size upto 3 MB ")
-        setType("error")
+        ToastMessage({message:"File size upto 3 MB",toastType:'error'})
       }
       else if(!imageType.includes(file.type)){
-        setSnackbarOpen(true);
-        setMessage("Image should be in .jpg,.jpeg,.png or .svg")
-        setType("error")
+        ToastMessage({message:'Image should be in .jpg,.jpeg,.png or .svg',toastType:'error'})
       }
       else{
         handleUploadtoS3(file, setProfileImage);
       }
-     
-   }
-    
+   } 
   };
-
-  
 
   const onSubmit:SubmitHandler<FormData> = async(values) =>{
     try{
@@ -159,9 +147,7 @@ const EditProfile = () => {
       })
       
       if(data?.update_users){
-        setSnackbarOpen(true);
-        setMessage("Profile updated successfully")
-        setType("success")        
+        ToastMessage({message:"Profile updated successfully",toastType:'success'})
       }
     }
     catch(err){
@@ -221,15 +207,9 @@ const EditProfile = () => {
          </div>
       </div>
       </div>
-      <CustomSnackbar
-          open={snackbarOpen}
-          message={message}
-          severity={type}
-          onClose={handleCloseSnackbar}
-        />
+      
     </div>
   )
 }
 
 export default EditProfile
-

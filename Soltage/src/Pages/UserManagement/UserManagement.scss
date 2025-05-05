@@ -1,9 +1,9 @@
 @import url('../../assets/Styles/global.scss');
 
-.mfa-dialog{
-    .MuiDialog-paper{
-        border-radius: 20px;
-    }
+.mfa_dialog{
+.MuiDialog-paper{
+    border-radius: 20px;
+}
 }
 
     ::-webkit-scrollbar {
@@ -30,6 +30,7 @@
     align-items: center;
     background-color: var(--whiteColor);
     height: auto;
+    padding: 25px;
     border-radius: 20px !important;
     gap: 15px;
     .close-icon{

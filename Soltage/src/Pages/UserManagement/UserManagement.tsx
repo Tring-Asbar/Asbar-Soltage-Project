@@ -26,9 +26,9 @@ import { CREATE_USER, UPDATE_USER_STATUS , DELETE_USER , EDIT_USER } from '../..
 import { RESEND_INVITE , GET_USERS } from '../../graphql/query';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
 import './UserManagement.scss';
-import CustomSnackbar from '../../Components/CustomSnackbar';
 import images from '../../assets/icons';
 import { useOutletContext } from 'react-router-dom';
+import ToastMessage from '../../Components/ToastMessage';
 
   type UserFormData = {
     FirstName: string;
@@ -59,12 +59,9 @@ import { useOutletContext } from 'react-router-dom';
     const [ id,setId] = useState<string>("")
     const [selectedRole, setSelectedRole] = useState('All Roles');
     const [selectedStatus, setSelectedStatus] = useState('All Status');
-
     const [appliedRole, setAppliedRole] = useState('All Roles');
     const [appliedStatus, setAppliedStatus] = useState('All Status');
 
-   
-  
     const { data, loading, error, refetch } = useQuery(GET_USERS, {
       variables: {
         search: '%%',
@@ -75,8 +72,6 @@ import { useOutletContext } from 'react-router-dom';
       },
     });
 
-    
-  
     const handleReset = () => {
       setSelectedRole('All Roles');
       setSelectedStatus('All Status');
@@ -129,7 +124,7 @@ import { useOutletContext } from 'react-router-dom';
           roles,
           statuses,
           limit: rowsPerPage,
-          offset: 0
+          offset:0
         });
       }, 500),
       [refetch,appliedRole,appliedStatus ]
@@ -140,11 +135,7 @@ import { useOutletContext } from 'react-router-dom';
     }, [searchInput, debouncedSearch]);
 
     const [isOpen, setIsOpen] = useState(false);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [message,setMessage] = useState("");
-    const[type,setType] = useState<AlertColor | undefined>();
 
-    const handleCloseSnackbar = () => setSnackbarOpen(false);
     
     const methods = useForm<UserFormData>({
       defaultValues: {
@@ -183,8 +174,6 @@ import { useOutletContext } from 'react-router-dom';
       setSelectedUser(null)
     };
 
-
-
     const getMenuOptions = (status: string) => {
       switch (status) {
         case 'PENDING':
@@ -215,9 +204,7 @@ import { useOutletContext } from 'react-router-dom';
           })
           
           if(update?.updateUser){
-            setSnackbarOpen(true);
-            setMessage(update?.updateUser?.message)
-            setType("success")
+            ToastMessage({message:'update?.updateUser?.message',toastType:'success'})
             refetch();
             
           }
@@ -231,7 +218,6 @@ import { useOutletContext } from 'react-router-dom';
       
     }
     
-
     const onSubmit: SubmitHandler<UserFormData> = async (values) => {
       if(isEditMode){
         editUser(values)
@@ -252,9 +238,7 @@ import { useOutletContext } from 'react-router-dom';
           });
   
           if (response.createUser.userCreated) {
-            setSnackbarOpen(true);
-            setMessage(response.createUser.userCreated.message)
-            setType("success")
+            ToastMessage({message:'response.createUser.userCreated.message',toastType:'success'})
             refetch();
           } else {
             console.error('Failed to create user.');
@@ -279,9 +263,7 @@ import { useOutletContext } from 'react-router-dom';
             }
           });
           if (userStatusDeactive?.updateUserStatus?.response) {
-            setSnackbarOpen(true)
-            setMessage(userStatusDeactive.updateUserStatus.response.message)
-            setType("error")
+            ToastMessage({message:userStatusDeactive.updateUserStatus.response.message,toastType:'error'})
             refetch();
           }
         } catch (err) {
@@ -301,11 +283,8 @@ import { useOutletContext } from 'react-router-dom';
             }
           });
           if (userStatusActive?.updateUserStatus?.response) {
-            console.log(user?.userId)
-            console.log(selectedUser?.id)
-            setSnackbarOpen(true)
-            setMessage(userStatusActive.updateUserStatus.response.message)
-            setType("success")
+            
+            ToastMessage({message:userStatusActive.updateUserStatus.response.message,toastType:'success'})
             refetch();
           }
         } catch (err) {
@@ -324,9 +303,7 @@ import { useOutletContext } from 'react-router-dom';
             }
           });
           if(deleteUser?.deleteUserAccount?.response){
-            setSnackbarOpen(true)
-            setMessage(deleteUser.deleteUserAccount.response.message)
-            setType("success")
+            ToastMessage({message:deleteUser.deleteUserAccount.response.message,toastType:'success'})
             refetch();
           }
           
@@ -347,9 +324,7 @@ import { useOutletContext } from 'react-router-dom';
             }
           });
           if (resendInvite?.resendInviteLink?.response) {
-            setSnackbarOpen(true)
-            setMessage(resendInvite.resendInviteLink.response.message)
-            setType("success")
+            ToastMessage({message:resendInvite.resendInviteLink.response.message,toastType:'success'})
             refetch();
           }
         } catch (err) {
@@ -429,7 +404,6 @@ import { useOutletContext } from 'react-router-dom';
       return <div>Error loading users!</div>
     }
     
-
     return (
       <div className='user-management'>
         <div className='user-header'>
@@ -449,7 +423,7 @@ import { useOutletContext } from 'react-router-dom';
           </div>
         </div>
 
-        <Dialog className='mfa-dialog'  open={isOpen} onClose={() => setIsOpenState(false)}>
+        <Dialog className='mfa_dialog'  open={isOpen} onClose={() => setIsOpenState(false)}>
           <FormProvider {...methods}>
             <div className='createuser-container'>
               <div className='close-icon'>
@@ -593,7 +567,9 @@ import { useOutletContext } from 'react-router-dom';
                 </TableHead>
                 <TableBody className='table-body'>
                   {loading && <div className='loader'><CircularProgress color='inherit'/></div>}
-                  {data?.users?.map((u: any, index: number) => (
+                  {data?.totalUsers?.aggregate?.count>0 
+                  ?
+                  (data?.users?.map((u: any, index: number) => (
                     <TableRow key={index}>
                       <TableCell className='table-cell'>{u.firstName || '-'}</TableCell>
                       <TableCell className='table-cell'>{u.lastName || '-'}</TableCell>
@@ -618,7 +594,11 @@ import { useOutletContext } from 'react-router-dom';
                       
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )))
+                  :(
+                    <TableRow className='loader error'>No Records Found</TableRow>
+                  )}
+                  
                 </TableBody>
               </Table>
             </TableContainer>
@@ -650,7 +630,7 @@ import { useOutletContext } from 'react-router-dom';
             onClick={() => handleChangePage('previous')} />
 
             <p>
-              <span>{`${(page * rowsPerPage) + 1} - ${Math.min((page * rowsPerPage) + rowsPerPage, data?.totalUsers?.aggregate?.count ?? 0)}`} </span> 
+              <span>{`${ data?.totalUsers?.aggregate?.count>0?(page * rowsPerPage) + 1 : 0} - ${Math.min((page * rowsPerPage) + rowsPerPage, data?.totalUsers?.aggregate?.count ?? 0)}`} </span> 
               of {data?.totalUsers?.aggregate?.count ?? 0}
             </p>
 
@@ -676,12 +656,7 @@ import { useOutletContext } from 'react-router-dom';
             ))}
         </Menu>
 
-        <CustomSnackbar
-          open={snackbarOpen}
-          message={message}
-          severity={type}
-          onClose={handleCloseSnackbar}
-        />
+       
       </div>
     );
   };
