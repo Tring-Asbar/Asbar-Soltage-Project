@@ -1,17 +1,15 @@
 import './EditProfile.scss'
 import ChangePasswordSidebar from '../ChangePassword/ChangePasswordSidebar'
-import { Avatar } from '../../assets/images'
 import  Button  from '../../Components/Button'
 import { Edit } from '../../assets/images'
-import { DialogActions } from '@mui/material'
 import { useEffect,useState } from 'react'
 import { useForm , FormProvider, SubmitHandler} from 'react-hook-form'
 import { useOutletContext } from 'react-router-dom'
 import InputField from '../../Components/InputField'
 import { UPDATE_PROFILE } from '../../graphql/mutation'
 import { PRESIGNED_URL } from '../../graphql/query'
-import { useLazyQuery, useMutation, useQuery } from '@apollo/client'
-import { AlertColor } from '@mui/material'
+import { useLazyQuery, useMutation} from '@apollo/client'
+import { AlertColor , DialogActions } from '@mui/material'
 import images from '../../assets/icons'
 import CustomSnackbar from '../../Components/CustomSnackbar'
 import moment from 'moment'
@@ -118,16 +116,17 @@ const EditProfile = () => {
 
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const max_size = 3 * 1024 * 1024
-    const file = e.target.files?.[0];
-    const type = ['image/jpeg', 'image/png','image/svg', 'image/jpg']
+    const MAX_SIZE = 3 * 1024 * 1024
+    const  file = e.target.files?.[0];
+    
+    const imageType = ['image/jpeg', 'image/png','image/svg', 'image/jpg']
     if (file) {
-      if(file.size>max_size){
+      if(file.size>MAX_SIZE){
         setSnackbarOpen(true);
         setMessage("File size upto 3 MB ")
         setType("error")
       }
-      else if(!type.includes(file.type)){
+      else if(!imageType.includes(file.type)){
         setSnackbarOpen(true);
         setMessage("Image should be in .jpg,.jpeg,.png or .svg")
         setType("error")

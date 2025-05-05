@@ -7,8 +7,10 @@ import { SIGNUP } from '../graphql/mutation';
 import { useMutation } from '@apollo/client';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './SignUp.scss';
-import { signUp,signIn , setUpTOTP, verifyTOTPSetup } from "aws-amplify/auth";
-import { CircularProgress } from '@mui/material';
+import { updateMFAPreference } from 'aws-amplify/auth';
+
+import { signIn , setUpTOTP, verifyTOTPSetup } from "aws-amplify/auth";
+import { CircularProgress, Dialog } from '@mui/material';
 import QRCode from 'qrcode';
 
 type FormData = {
@@ -68,20 +70,20 @@ export const SignUp = () => {
     setLoading(true);
     try {
       
-      await signUp({
-        username: values.Email,
-        password: values.Password,
-        options: {
-          userAttributes: {
-            email: values.Email,
-            name: `${values.FirstName} ${values.LastName}`,
-            given_name: values.FirstName,
-            family_name: values.LastName,
-          },
-        },
-      });
-      
-      await userSignUp({
+      // await signUp({
+      //   username: values.Email,
+      //   password: values.Password,
+      //   options: {
+      //     userAttributes: {
+      //       email: values.Email,
+      //       name: `${values.FirstName} ${values.LastName}`,
+      //       given_name: values.FirstName,
+      //       family_name: values.LastName,
+      //     },
+      //   },
+      // });
+
+       await userSignUp({
         variables: {
           UserSignupInput: {
             firstName: values.FirstName,
@@ -96,13 +98,15 @@ export const SignUp = () => {
         username: values.Email,
         password: values.Password,
       });
+      
 
       setUser(signedInUser);
 
-      
-
       const secretCode = await setUpTOTP();
-      const otpAuthUrl = `otpauth://totp/${import.meta.env.VITE_SOLTAGE_AUTHENTICATOR_APP_NAME}:${values.Email}?secret=${secretCode}&issuer=${import.meta.env.VITE_SOLTAGE_AUTHENTICATOR_APP_NAME}`;
+      console.log(secretCode);
+    
+      const otpAuthUrl = `otpauth://totp/${import.meta.env.VITE_SOLTAGE_AUTHENTICATOR_APP_NAME}:${values.Email}?secret=${secretCode.sharedSecret}&issuer=${import.meta.env.VITE_SOLTAGE_AUTHENTICATOR_APP_NAME}`;
+      console.log(otpAuthUrl)
 
       QRCode.toDataURL(otpAuthUrl, (err, url) => {
         if (!err && url) {
@@ -122,7 +126,14 @@ export const SignUp = () => {
   const handleMfaVerify = async () => {
     try {
       await verifyTOTPSetup({ code: mfaCode });
+      await updateMFAPreference({
+        totp: 'PREFERRED',  
+        sms: 'DISABLED',
+      });
+      
       alert("MFA Setup Successful!");
+      setShowMFA(false)
+      localStorage.clear()
       navigate('/signin');
     } catch (err) {
       alert("Invalid MFA code. Try again.");
@@ -143,18 +154,17 @@ export const SignUp = () => {
           <img src={logo} alt="Soltage Logo" className='soltage' />
           <h1>Welcome, Sign Up</h1>
           <p className="content">Please create your Soltage Nexus log in credentials by providing the details below</p>
-          {!showMFA ? (
           <FormProvider {...methods}>
             <form className='fields' onSubmit={handleSubmit(onSubmit)}>
               <div className="form-group">
                 <div className="names">
                   <div className='field'>
                     <label>First Name <span>*</span></label><br />
-                    <InputField name="FirstName" type="text" placeholder="Enter first name" className="firstname" readOnly />
+                    <InputField name="FirstName" type="text" placeholder="Enter first name" className="firstname"/>
                   </div>
                   <div className='field'>
                     <label>Last Name <span>*</span></label><br />
-                    <InputField name="LastName" type="text" placeholder="Enter last name" className="lastname" readOnly />
+                    <InputField name="LastName" type="text" placeholder="Enter last name" className="lastname"  />
                   </div>
                 </div>
               </div>
@@ -177,7 +187,10 @@ export const SignUp = () => {
               <Button className="signup-btn" action="Sign Up" type="submit" disabled={loading} />
             </form>
           </FormProvider>
-          ):(
+          
+        </div>
+
+        <Dialog open={showMFA}>
           <div className="mfa_setup">
             <h2>Setup Google Authenticator</h2>
             {qrCodeURL && <img src={qrCodeURL} alt="Scan this QR code" />}
@@ -189,11 +202,10 @@ export const SignUp = () => {
               onChange={(e) => setMfaCode(e.target.value)}
             />
             <div className="mfa_buttons">
-              <button onClick={handleMfaVerify} className="verify-btn">Add MFA</button>
+              <Button onClick={handleMfaVerify} className="verify-btn" action="Add MFA"/>
             </div>
           </div>
-          )}
-        </div>
+        </Dialog>
       </div>
     </div>
   );

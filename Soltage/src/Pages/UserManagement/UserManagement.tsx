@@ -15,7 +15,8 @@
     TableRow,
     Menu,
     MenuItem,
-    AlertColor,  
+    AlertColor, 
+    CircularProgress 
   } from '@mui/material';
 import InputField from '../../Components/InputField';
 import Button from '../../Components/Button';
@@ -28,7 +29,6 @@ import './UserManagement.scss';
 import CustomSnackbar from '../../Components/CustomSnackbar';
 import images from '../../assets/icons';
 import { useOutletContext } from 'react-router-dom';
-import {CircularProgress} from '@mui/material';
 
   type UserFormData = {
     FirstName: string;
@@ -60,6 +60,9 @@ import {CircularProgress} from '@mui/material';
     const [selectedRole, setSelectedRole] = useState('All Roles');
     const [selectedStatus, setSelectedStatus] = useState('All Status');
 
+    const [appliedRole, setAppliedRole] = useState('All Roles');
+    const [appliedStatus, setAppliedStatus] = useState('All Status');
+
    
   
     const { data, loading, error, refetch } = useQuery(GET_USERS, {
@@ -68,7 +71,7 @@ import {CircularProgress} from '@mui/material';
         roles: ['Admin', 'Executives', 'Standard'],
         statuses: ['PENDING', 'ACTIVE', 'INACTIVE'],
         limit: rowsPerPage,
-        offset: page * rowsPerPage,
+        offset: 0,
       },
     });
 
@@ -88,8 +91,12 @@ import {CircularProgress} from '@mui/material';
     };
   
     const handleApplyFilter = () => {
+      setAppliedRole(selectedRole);
+      setAppliedStatus(selectedStatus);
+
       const roles = selectedRole === 'All Roles' ? ['Admin', 'Executives', 'Standard'] : [selectedRole];
       const statuses = selectedStatus === 'All Status' ? ['PENDING', 'ACTIVE', 'INACTIVE'] : [selectedStatus];
+
       refetch({
         search: `%${searchInput}%` || '%%',
         roles,
@@ -97,6 +104,7 @@ import {CircularProgress} from '@mui/material';
         limit: rowsPerPage,
         offset: page * rowsPerPage,
       });
+      setPage(0)
       setShowFilter(false);
     };
 
@@ -113,15 +121,18 @@ import {CircularProgress} from '@mui/material';
 
     const debouncedSearch = useCallback(
       debounce((value: string) => {
+        const roles = appliedRole === 'All Roles' ? ['Admin', 'Executives', 'Standard'] : [appliedRole];
+        const statuses = appliedStatus === 'All Status' ? ['PENDING', 'ACTIVE', 'INACTIVE'] : [appliedStatus];
+        setPage(0)
         refetch({
           search: `%${value}%` || '%%',
-          roles: ['Admin', 'Executives', 'Standard'],
-          statuses: ['PENDING', 'ACTIVE', 'INACTIVE'],
-          limit: 10,
+          roles,
+          statuses,
+          limit: rowsPerPage,
           offset: 0
         });
       }, 500),
-      [refetch]
+      [refetch,appliedRole,appliedStatus ]
     );
 
     useEffect(() => {
@@ -135,7 +146,6 @@ import {CircularProgress} from '@mui/material';
 
     const handleCloseSnackbar = () => setSnackbarOpen(false);
     
-
     const methods = useForm<UserFormData>({
       defaultValues: {
         FirstName: '',
@@ -269,7 +279,6 @@ import {CircularProgress} from '@mui/material';
             }
           });
           if (userStatusDeactive?.updateUserStatus?.response) {
-            
             setSnackbarOpen(true)
             setMessage(userStatusDeactive.updateUserStatus.response.message)
             setType("error")
@@ -381,22 +390,39 @@ import {CircularProgress} from '@mui/material';
     };
 
     const navigateToStartEnd = (direction:string)=>{
-      if(direction=='start'){
+      const roles = appliedRole === 'All Roles' ? ['Admin', 'Executives', 'Standard'] : [appliedRole];
+      const statuses = appliedStatus === 'All Status' ? ['PENDING', 'ACTIVE', 'INACTIVE'] : [appliedStatus];
+      if(direction==='start'){
         setPage(0)
+        refetch({ search: `%${searchInput}%` || '%%', roles, statuses, limit: rowsPerPage, offset: 0 });
       }
       else if (direction === 'end') {
         const totalCount = data?.totalUsers?.aggregate?.count ?? 0;
         const lastPage = Math.max(0, Math.ceil(totalCount / rowsPerPage) - 1);
         setPage(lastPage);
+        refetch({
+          search: `%${searchInput}%` || '%%',
+          roles,
+          statuses,
+          limit: rowsPerPage,
+          offset: lastPage * rowsPerPage,
+        });
       }
     }
 
     const handleChangePage = (direction: string) => {
-      if (direction === 'next') {
-        setPage(page + 1);
-      } else if (direction === 'previous' && page > 0) {
-        setPage(page - 1);
-      }
+      const newPage = direction === 'next' ? page + 1 : page - 1;
+      const roles = appliedRole === 'All Roles' ? ['Admin', 'Executives', 'Standard'] : [appliedRole];
+      const statuses = appliedStatus === 'All Status' ? ['PENDING', 'ACTIVE', 'INACTIVE'] : [appliedStatus];
+    
+      setPage(newPage);
+      refetch({
+        search: `%${searchInput}%` || '%%',
+        roles,
+        statuses,
+        limit: rowsPerPage,
+        offset: newPage * rowsPerPage,
+      });
     };
     
     if (error){ 
@@ -423,7 +449,7 @@ import {CircularProgress} from '@mui/material';
           </div>
         </div>
 
-        <Dialog open={isOpen} onClose={() => setIsOpenState(false)}>
+        <Dialog className='mfa-dialog'  open={isOpen} onClose={() => setIsOpenState(false)}>
           <FormProvider {...methods}>
             <div className='createuser-container'>
               <div className='close-icon'>
@@ -539,9 +565,9 @@ import {CircularProgress} from '@mui/material';
                   <label>Active Status</label>
                   <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
                     <option>All Status</option>
-                    <option>ACTIVE</option>
-                    <option>PENDING</option>
-                    <option>INACTIVE</option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="INACTIVE">Inactive</option>
                   </select>
                 </div>
               </div>
@@ -615,15 +641,26 @@ import {CircularProgress} from '@mui/material';
             </select>
           </div>
             <div className='pagination-buttons'>
-            <Button className='nav-btn' icon={page === 0?DoubleLeft:SelectedDoubleLeft} action='' disabled={page === 0} onClick={()=>navigateToStartEnd('start')}/>
+            <Button 
+            className='nav-btn' icon={page === 0?DoubleLeft:SelectedDoubleLeft} action='' disabled={page === 0} 
+            onClick={()=>navigateToStartEnd('start')}/>
 
-            <Button className='nav-btn' icon={page===0?Left:SelectedLeft}onClick={() => handleChangePage('previous')} disabled={page === 0}action=''/>
+            <Button 
+            className='nav-btn' icon={page===0?Left:SelectedLeft} action='' disabled={page === 0}
+            onClick={() => handleChangePage('previous')} />
 
-            <p><span>{`${(page * rowsPerPage) + 1} - ${Math.min((page * rowsPerPage) + rowsPerPage, data?.totalUsers?.aggregate?.count ?? 0)}`}</span> of {data?.totalUsers?.aggregate?.count ?? 0}</p>
+            <p>
+              <span>{`${(page * rowsPerPage) + 1} - ${Math.min((page * rowsPerPage) + rowsPerPage, data?.totalUsers?.aggregate?.count ?? 0)}`} </span> 
+              of {data?.totalUsers?.aggregate?.count ?? 0}
+            </p>
 
-            <Button className='nav-btn' icon={data?.users?.length < rowsPerPage?Right:SelectedRight} onClick={() => handleChangePage('next')} disabled={data?.users?.length < rowsPerPage} action=''/>
+            <Button 
+            className='nav-btn' icon={data?.users?.length < rowsPerPage?Right:SelectedRight} action='' disabled={data?.users?.length < rowsPerPage}  
+            onClick={() => handleChangePage('next')} />
 
-            <Button className='nav-btn' icon={data?.users?.length < rowsPerPage?DoubleRight:SelectedDoubleRight} action='' disabled={data?.users?.length < rowsPerPage} onClick={()=>navigateToStartEnd('end')}/>
+            <Button className='nav-btn' icon={data?.users?.length < rowsPerPage?DoubleRight:SelectedDoubleRight} action='' disabled={data?.users?.length < rowsPerPage} 
+            onClick={()=>navigateToStartEnd('end')}/>
+
             </div>
           </div>
           

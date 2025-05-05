@@ -2,8 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { signOut } from 'aws-amplify/auth';
 import Button from '../../Components/Button';
-import { Logout, Profile, Lock } from '../../assets/images';
-import {hamburger} from '../../assets/images'
+import { Logout, Profile, Lock , hamburger } from '../../assets/images';
 import './ChangePasswordSidebar.scss'
 
 const ChangePasswordSidebar = () => {

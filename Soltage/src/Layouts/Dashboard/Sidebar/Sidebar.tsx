@@ -1,18 +1,18 @@
 
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import SoltageLogo from "../../../assets/images/logoimg1@2x.png";
 import Logo from "../../../assets/images/shape@2x.png";
-import { select } from "../../../assets/images";
 import {userprofile,Dashboard,ProjectTracking,Project,UserManagement,Notification,hamburger,DashboardActive,ProjectActive,ProjectTrackingActive,NotificationActive,UserManagementActive} from "../../../assets/images"; 
 import images from "../../../assets/icons/index";
 import "./Sidebar.scss";
 
 type sidebarProps = {
   user: any;
+  refetchUser: () => void;
 };
 
-const Sidebar = ({ user }: sidebarProps) => {
+const Sidebar = ({ user,refetchUser }: sidebarProps) => {
   const {
     LockActive, 
     LoadActive, 
@@ -24,6 +24,12 @@ const Sidebar = ({ user }: sidebarProps) => {
   const location = useLocation();
 
   const toggleMenu = () => setIsOpen(!isOpen);
+
+  useEffect(() => {
+    if (user?.emailId) {
+      refetchUser();
+    }
+  }, [user?.emailId]);
 
   const sidebarMenu = [
     { icon: Dashboard,activeIcon:DashboardActive, path: "/dashboard", label: "Dashboard", roles: ["admin", "user"] },
@@ -56,7 +62,6 @@ const Sidebar = ({ user }: sidebarProps) => {
               </div>
             ) : (
               <div key={menu.path} className={`menu ${isActive ? "active" : ""}`}onClick={() => navigate(menu.path)}>
-                {/* {isActive && <img src={select} alt="select"  className="select"/>} */}
                 <img src={isActive ? menu.activeIcon : menu.icon} alt="menu icon" className="menu-icon" />
               </div>
             );
