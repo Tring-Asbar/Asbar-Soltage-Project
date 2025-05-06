@@ -23,13 +23,14 @@ type FormData = {
 }
 
 type OutletContextType = {
-  user: any; 
+  user: any;
+  refetch :()=>void 
 };
 
 const EditProfile = () => {
   const {UserIcon} = images
 
-  const { user } = useOutletContext<OutletContextType>();
+  const { user ,refetch} = useOutletContext<OutletContextType>();
 
   const [update_users] = useMutation(UPDATE_PROFILE)
   const[getUploadSignedUrl] = useLazyQuery(PRESIGNED_URL)
@@ -148,6 +149,7 @@ const EditProfile = () => {
       
       if(data?.update_users){
         ToastMessage({message:"Profile updated successfully",toastType:'success'})
+        refetch()
       }
     }
     catch(err){

@@ -9,7 +9,7 @@ import "./Sidebar.scss";
 
 type sidebarProps = {
   user: any;
-  refetchUser: () => void;
+  refetchUser: () => any;
 };
 
 const Sidebar = ({ user,refetchUser }: sidebarProps) => {
@@ -26,10 +26,13 @@ const Sidebar = ({ user,refetchUser }: sidebarProps) => {
   const toggleMenu = () => setIsOpen(!isOpen);
 
   useEffect(() => {
-    if (user?.emailId) {
-      refetchUser();
+    if (user && user?.emailId) {
+      refetchUser()
+      .then((res: any) => console.log("Refetch successful", res))
+      .catch((err: any) => console.error("Refetch failed", err));
+
     }
-  }, [user?.emailId]);
+  }, [user?.emailId, user?.profileImage]);
 
   const sidebarMenu = [
     { icon: Dashboard,activeIcon:DashboardActive, path: "/dashboard", label: "Dashboard", roles: ["admin", "user"] },
@@ -53,7 +56,7 @@ const Sidebar = ({ user,refetchUser }: sidebarProps) => {
 
         <div className="sidebar-menu">
           {filteredMenu.map((menu) => {
-            const isActive = menu.path.includes(location.pathname);
+            const isActive = location.pathname.includes(menu.path);
 
            return isOpen ? (
               <div key={menu.path} className={`menu ${isActive ? "active" : ""}`} onClick={() => navigate(menu.path)}>

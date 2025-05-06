@@ -11,7 +11,7 @@ const ToastMessage = ( { message, toastType }: toastProps) => {
             type: toastType,
             autoClose :3000,
             closeOnClick:true,
-            position:'top-right'
+            position:'top-right',
         })
 }
 

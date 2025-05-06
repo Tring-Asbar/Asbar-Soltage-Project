@@ -37,6 +37,16 @@ const DashboardLayout = () => {
       setUserData(data.users[0]);
     }
   }, [data]);
+  const handleRefetchUser = async () => {
+    try {
+      const result = await refetch({ email: userData?.emailId });
+      if (result?.data?.users?.[0]) {
+        setUserData(result.data.users[0]); 
+      }
+    } catch (err) {
+      console.error("Sidebar triggered refetch failed:", err);
+    }
+  };
 
   
 
@@ -49,8 +59,8 @@ const DashboardLayout = () => {
 
   return (
     <div className="dashboard-container">
-     <Sidebar user={userData} refetchUser={() => refetch({ email:userData?.emailId})}/>
-      <Outlet context={{ user: userData }} />
+     <Sidebar user={userData} refetchUser={(handleRefetchUser)}/>
+      <Outlet context={{ user: userData ,refetch }}  />
     </div>
   );
 };

@@ -15,7 +15,6 @@
     TableRow,
     Menu,
     MenuItem,
-    AlertColor, 
     CircularProgress 
   } from '@mui/material';
 import InputField from '../../Components/InputField';
@@ -102,6 +101,20 @@ import ToastMessage from '../../Components/ToastMessage';
       setPage(0)
       setShowFilter(false);
     };
+
+    useEffect(() => {
+      const roles = appliedRole === 'All Roles' ? ['Admin', 'Executives', 'Standard'] : [appliedRole];
+      const statuses = appliedStatus === 'All Status' ? ['PENDING', 'ACTIVE', 'INACTIVE'] : [appliedStatus];
+    
+      refetch({
+        search: `%${searchInput}%` || '%%',
+        roles,
+        statuses,
+        limit: rowsPerPage,
+        offset: page * rowsPerPage,
+      });
+    }, [rowsPerPage]);
+    
 
     const filterRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
@@ -204,7 +217,7 @@ import ToastMessage from '../../Components/ToastMessage';
           })
           
           if(update?.updateUser){
-            ToastMessage({message:'update?.updateUser?.message',toastType:'success'})
+            ToastMessage({message:update?.updateUser?.message,toastType:'success'})
             refetch();
             
           }
@@ -238,7 +251,7 @@ import ToastMessage from '../../Components/ToastMessage';
           });
   
           if (response.createUser.userCreated) {
-            ToastMessage({message:'response.createUser.userCreated.message',toastType:'success'})
+            ToastMessage({message:response.createUser.userCreated.message,toastType:'success'})
             refetch();
           } else {
             console.error('Failed to create user.');
@@ -399,6 +412,7 @@ import ToastMessage from '../../Components/ToastMessage';
         offset: newPage * rowsPerPage,
       });
     };
+
     
     if (error){ 
       return <div>Error loading users!</div>
@@ -496,7 +510,7 @@ import ToastMessage from '../../Components/ToastMessage';
                       type='reset'
                       onClick={() => setIsOpenState(false)}
                     />
-                    <Button action={isEditMode ? 'Update User' : 'Create User'} className='create' type='submit' />
+                    <Button action={isEditMode ? 'Update' : 'Create User'} className='create' type='submit' />
                   </div>
                 </DialogActions>
               </form>
