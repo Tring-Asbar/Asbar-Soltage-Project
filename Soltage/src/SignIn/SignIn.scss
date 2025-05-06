@@ -1,5 +1,96 @@
 @import url('../assets/Styles/global.scss');
 
+.mfa-dialog {
+    img{
+        width: 30px;
+        position: absolute;
+        right: 24px;
+       
+    }
+    h1{
+        padding-top: 20px;
+    }
+    h1,p{
+        text-align: center;
+        font-weight: 600;
+        font-size: 24px;
+        color: var(--darkBlueColor);
+    }
+    p{
+        width: 500px;
+        font-weight: 400;
+        font-size: 14px;
+        color: var(--highlightColor);
+    }
+    
+    
+    .MuiDialog-paper {
+      padding: 24px;
+      border-radius: 12px;
+      background-color: var(--fullWhite);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+  
+    .MuiDialogTitle-root {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+      padding-bottom: 8px;
+    }
+  
+    .MuiDialogContent-root {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      label{
+        font-weight: 500;
+        font-size: 12px;
+        color: var(--lightColor);
+      }
+  
+      input[name='MFA'] {
+        padding: 10px 12px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        outline: none;
+        transition: border-color 0.3s;
+  
+        &:focus {
+          border-color: var(--primaryColor);
+        }
+      }
+    }
+  
+    .MuiDialogActions-root {
+      justify-content: flex-end;
+      padding-top: 16px;
+  
+      .verify,.discard {
+        padding: 10px 24px;
+        background-color: var(--primaryColor);
+        color: var(--fullWhite);
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s;
+  
+        &:hover {
+            background-color:var(--primaryColor);
+          }
+      }
+      .discard{
+        background-color: var(--lightWhite);
+        color: var(--lightColor);
+        &:hover {
+            background-color:var(--lightWhite);
+        }
+      }
+    }
+  }
+  
+
 .login_page {
     display: flex;
     justify-content: space-around;

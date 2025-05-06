@@ -20,11 +20,12 @@ export const UPDATE_USER_STATUS = gql`
 
 export const SIGNUP = gql`
     mutation UserSignUp($UserSignupInput: userSignupInput!) {
-        userSignUp(userSignupInput: $UserSignupInput) {
-            userCreated
-            __typename
-        }
-    }
+  userSignUp(userSignupInput: $UserSignupInput) {
+    userCreated
+    __typename
+  }
+
+}
 `;
 
 export const CHANGE_PASSWORD = gql`

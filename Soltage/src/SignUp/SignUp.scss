@@ -1,5 +1,71 @@
 @import url('../assets/Styles/global.scss');
 
+.mfa_setup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    max-width: 400px;
+    margin: auto;
+        img{
+            width: 30px;
+            position: absolute;
+            right: 24px;
+        }
+  
+    h2 {
+      padding-top: 20px;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #2c3e50;
+    }
+  
+    
+    p {
+      font-size: 0.95rem;
+      text-align: center;
+      margin: 1rem 0;
+      color: #555;
+    }
+  
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 1.5rem;
+      outline: none;
+      transition: border 0.2s ease;
+  
+      &:focus {
+        border-color: var(--primaryColor);
+      }
+    }
+  
+    .mfa_buttons {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+  
+      .verify-btn,.discard-btn {
+        background-color: var(--primaryColor);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+      .discard-btn{
+        background-color: var(--lightWhite);
+        color: var(--lightColor);
+      }
+    }
+  }
+  
+
 .signup_page {
     display: flex;
     justify-content: space-around;

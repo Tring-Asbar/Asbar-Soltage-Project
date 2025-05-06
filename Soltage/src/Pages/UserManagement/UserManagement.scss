@@ -1,8 +1,11 @@
 @import url('../../assets/Styles/global.scss');
 
-.MuiDialog-root{
+.mfa_dialog{
+.MuiDialog-paper{
     border-radius: 20px;
 }
+}
+
     ::-webkit-scrollbar {
     width: 8px;
     }

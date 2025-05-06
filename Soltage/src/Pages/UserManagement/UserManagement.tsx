@@ -15,7 +15,7 @@
     TableRow,
     Menu,
     MenuItem,
-    AlertColor,  
+    CircularProgress 
   } from '@mui/material';
 import InputField from '../../Components/InputField';
 import Button from '../../Components/Button';
@@ -25,10 +25,9 @@ import { CREATE_USER, UPDATE_USER_STATUS , DELETE_USER , EDIT_USER } from '../..
 import { RESEND_INVITE , GET_USERS } from '../../graphql/query';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
 import './UserManagement.scss';
-import CustomSnackbar from '../../Components/CustomSnackbar';
 import images from '../../assets/icons';
 import { useOutletContext } from 'react-router-dom';
-import {CircularProgress} from '@mui/material';
+import ToastMessage from '../../Components/ToastMessage';
 
   type UserFormData = {
     FirstName: string;
@@ -59,21 +58,19 @@ import {CircularProgress} from '@mui/material';
     const [ id,setId] = useState<string>("")
     const [selectedRole, setSelectedRole] = useState('All Roles');
     const [selectedStatus, setSelectedStatus] = useState('All Status');
+    const [appliedRole, setAppliedRole] = useState('All Roles');
+    const [appliedStatus, setAppliedStatus] = useState('All Status');
 
-   
-  
     const { data, loading, error, refetch } = useQuery(GET_USERS, {
       variables: {
         search: '%%',
         roles: ['Admin', 'Executives', 'Standard'],
         statuses: ['PENDING', 'ACTIVE', 'INACTIVE'],
         limit: rowsPerPage,
-        offset: page * rowsPerPage,
+        offset: 0,
       },
     });
 
-    
-  
     const handleReset = () => {
       setSelectedRole('All Roles');
       setSelectedStatus('All Status');
@@ -88,8 +85,12 @@ import {CircularProgress} from '@mui/material';
     };
   
     const handleApplyFilter = () => {
+      setAppliedRole(selectedRole);
+      setAppliedStatus(selectedStatus);
+
       const roles = selectedRole === 'All Roles' ? ['Admin', 'Executives', 'Standard'] : [selectedRole];
       const statuses = selectedStatus === 'All Status' ? ['PENDING', 'ACTIVE', 'INACTIVE'] : [selectedStatus];
+
       refetch({
         search: `%${searchInput}%` || '%%',
         roles,
@@ -97,8 +98,23 @@ import {CircularProgress} from '@mui/material';
         limit: rowsPerPage,
         offset: page * rowsPerPage,
       });
+      setPage(0)
       setShowFilter(false);
     };
+
+    useEffect(() => {
+      const roles = appliedRole === 'All Roles' ? ['Admin', 'Executives', 'Standard'] : [appliedRole];
+      const statuses = appliedStatus === 'All Status' ? ['PENDING', 'ACTIVE', 'INACTIVE'] : [appliedStatus];
+    
+      refetch({
+        search: `%${searchInput}%` || '%%',
+        roles,
+        statuses,
+        limit: rowsPerPage,
+        offset: page * rowsPerPage,
+      });
+    }, [rowsPerPage]);
+    
 
     const filterRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
@@ -113,15 +129,18 @@ import {CircularProgress} from '@mui/material';
 
     const debouncedSearch = useCallback(
       debounce((value: string) => {
+        const roles = appliedRole === 'All Roles' ? ['Admin', 'Executives', 'Standard'] : [appliedRole];
+        const statuses = appliedStatus === 'All Status' ? ['PENDING', 'ACTIVE', 'INACTIVE'] : [appliedStatus];
+        setPage(0)
         refetch({
           search: `%${value}%` || '%%',
-          roles: ['Admin', 'Executives', 'Standard'],
-          statuses: ['PENDING', 'ACTIVE', 'INACTIVE'],
-          limit: 10,
-          offset: 0
+          roles,
+          statuses,
+          limit: rowsPerPage,
+          offset:0
         });
       }, 500),
-      [refetch]
+      [refetch,appliedRole,appliedStatus ]
     );
 
     useEffect(() => {
@@ -129,13 +148,8 @@ import {CircularProgress} from '@mui/material';
     }, [searchInput, debouncedSearch]);
 
     const [isOpen, setIsOpen] = useState(false);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [message,setMessage] = useState("");
-    const[type,setType] = useState<AlertColor | undefined>();
 
-    const handleCloseSnackbar = () => setSnackbarOpen(false);
     
-
     const methods = useForm<UserFormData>({
       defaultValues: {
         FirstName: '',
@@ -173,8 +187,6 @@ import {CircularProgress} from '@mui/material';
       setSelectedUser(null)
     };
 
-
-
     const getMenuOptions = (status: string) => {
       switch (status) {
         case 'PENDING':
@@ -205,9 +217,7 @@ import {CircularProgress} from '@mui/material';
           })
           
           if(update?.updateUser){
-            setSnackbarOpen(true);
-            setMessage(update?.updateUser?.message)
-            setType("success")
+            ToastMessage({message:update?.updateUser?.message,toastType:'success'})
             refetch();
             
           }
@@ -221,7 +231,6 @@ import {CircularProgress} from '@mui/material';
       
     }
     
-
     const onSubmit: SubmitHandler<UserFormData> = async (values) => {
       if(isEditMode){
         editUser(values)
@@ -242,9 +251,7 @@ import {CircularProgress} from '@mui/material';
           });
   
           if (response.createUser.userCreated) {
-            setSnackbarOpen(true);
-            setMessage(response.createUser.userCreated.message)
-            setType("success")
+            ToastMessage({message:response.createUser.userCreated.message,toastType:'success'})
             refetch();
           } else {
             console.error('Failed to create user.');
@@ -269,10 +276,7 @@ import {CircularProgress} from '@mui/material';
             }
           });
           if (userStatusDeactive?.updateUserStatus?.response) {
-            
-            setSnackbarOpen(true)
-            setMessage(userStatusDeactive.updateUserStatus.response.message)
-            setType("error")
+            ToastMessage({message:userStatusDeactive.updateUserStatus.response.message,toastType:'error'})
             refetch();
           }
         } catch (err) {
@@ -292,11 +296,8 @@ import {CircularProgress} from '@mui/material';
             }
           });
           if (userStatusActive?.updateUserStatus?.response) {
-            console.log(user?.userId)
-            console.log(selectedUser?.id)
-            setSnackbarOpen(true)
-            setMessage(userStatusActive.updateUserStatus.response.message)
-            setType("success")
+            
+            ToastMessage({message:userStatusActive.updateUserStatus.response.message,toastType:'success'})
             refetch();
           }
         } catch (err) {
@@ -315,9 +316,7 @@ import {CircularProgress} from '@mui/material';
             }
           });
           if(deleteUser?.deleteUserAccount?.response){
-            setSnackbarOpen(true)
-            setMessage(deleteUser.deleteUserAccount.response.message)
-            setType("success")
+            ToastMessage({message:deleteUser.deleteUserAccount.response.message,toastType:'success'})
             refetch();
           }
           
@@ -338,9 +337,7 @@ import {CircularProgress} from '@mui/material';
             }
           });
           if (resendInvite?.resendInviteLink?.response) {
-            setSnackbarOpen(true)
-            setMessage(resendInvite.resendInviteLink.response.message)
-            setType("success")
+            ToastMessage({message:resendInvite.resendInviteLink.response.message,toastType:'success'})
             refetch();
           }
         } catch (err) {
@@ -381,29 +378,46 @@ import {CircularProgress} from '@mui/material';
     };
 
     const navigateToStartEnd = (direction:string)=>{
-      if(direction=='start'){
+      const roles = appliedRole === 'All Roles' ? ['Admin', 'Executives', 'Standard'] : [appliedRole];
+      const statuses = appliedStatus === 'All Status' ? ['PENDING', 'ACTIVE', 'INACTIVE'] : [appliedStatus];
+      if(direction==='start'){
         setPage(0)
+        refetch({ search: `%${searchInput}%` || '%%', roles, statuses, limit: rowsPerPage, offset: 0 });
       }
       else if (direction === 'end') {
         const totalCount = data?.totalUsers?.aggregate?.count ?? 0;
         const lastPage = Math.max(0, Math.ceil(totalCount / rowsPerPage) - 1);
         setPage(lastPage);
+        refetch({
+          search: `%${searchInput}%` || '%%',
+          roles,
+          statuses,
+          limit: rowsPerPage,
+          offset: lastPage * rowsPerPage,
+        });
       }
     }
 
     const handleChangePage = (direction: string) => {
-      if (direction === 'next') {
-        setPage(page + 1);
-      } else if (direction === 'previous' && page > 0) {
-        setPage(page - 1);
-      }
+      const newPage = direction === 'next' ? page + 1 : page - 1;
+      const roles = appliedRole === 'All Roles' ? ['Admin', 'Executives', 'Standard'] : [appliedRole];
+      const statuses = appliedStatus === 'All Status' ? ['PENDING', 'ACTIVE', 'INACTIVE'] : [appliedStatus];
+    
+      setPage(newPage);
+      refetch({
+        search: `%${searchInput}%` || '%%',
+        roles,
+        statuses,
+        limit: rowsPerPage,
+        offset: newPage * rowsPerPage,
+      });
     };
+
     
     if (error){ 
       return <div>Error loading users!</div>
     }
     
-
     return (
       <div className='user-management'>
         <div className='user-header'>
@@ -423,7 +437,7 @@ import {CircularProgress} from '@mui/material';
           </div>
         </div>
 
-        <Dialog open={isOpen} onClose={() => setIsOpenState(false)}>
+        <Dialog className='mfa_dialog'  open={isOpen} onClose={() => setIsOpenState(false)}>
           <FormProvider {...methods}>
             <div className='createuser-container'>
               <div className='close-icon'>
@@ -496,7 +510,7 @@ import {CircularProgress} from '@mui/material';
                       type='reset'
                       onClick={() => setIsOpenState(false)}
                     />
-                    <Button action={isEditMode ? 'Update User' : 'Create User'} className='create' type='submit' />
+                    <Button action={isEditMode ? 'Update' : 'Create User'} className='create' type='submit' />
                   </div>
                 </DialogActions>
               </form>
@@ -539,9 +553,9 @@ import {CircularProgress} from '@mui/material';
                   <label>Active Status</label>
                   <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
                     <option>All Status</option>
-                    <option>ACTIVE</option>
-                    <option>PENDING</option>
-                    <option>INACTIVE</option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="INACTIVE">Inactive</option>
                   </select>
                 </div>
               </div>
@@ -567,7 +581,9 @@ import {CircularProgress} from '@mui/material';
                 </TableHead>
                 <TableBody className='table-body'>
                   {loading && <div className='loader'><CircularProgress color='inherit'/></div>}
-                  {data?.users?.map((u: any, index: number) => (
+                  {data?.totalUsers?.aggregate?.count>0 
+                  ?
+                  (data?.users?.map((u: any, index: number) => (
                     <TableRow key={index}>
                       <TableCell className='table-cell'>{u.firstName || '-'}</TableCell>
                       <TableCell className='table-cell'>{u.lastName || '-'}</TableCell>
@@ -592,7 +608,11 @@ import {CircularProgress} from '@mui/material';
                       
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )))
+                  :(
+                    <TableRow className='loader error'>No Records Found</TableRow>
+                  )}
+                  
                 </TableBody>
               </Table>
             </TableContainer>
@@ -615,15 +635,26 @@ import {CircularProgress} from '@mui/material';
             </select>
           </div>
             <div className='pagination-buttons'>
-            <Button className='nav-btn' icon={page === 0?DoubleLeft:SelectedDoubleLeft} action='' disabled={page === 0} onClick={()=>navigateToStartEnd('start')}/>
+            <Button 
+            className='nav-btn' icon={page === 0?DoubleLeft:SelectedDoubleLeft} action='' disabled={page === 0} 
+            onClick={()=>navigateToStartEnd('start')}/>
 
-            <Button className='nav-btn' icon={page===0?Left:SelectedLeft}onClick={() => handleChangePage('previous')} disabled={page === 0}action=''/>
+            <Button 
+            className='nav-btn' icon={page===0?Left:SelectedLeft} action='' disabled={page === 0}
+            onClick={() => handleChangePage('previous')} />
 
-            <p><span>{`${(page * rowsPerPage) + 1} - ${Math.min((page * rowsPerPage) + rowsPerPage, data?.totalUsers?.aggregate?.count ?? 0)}`}</span> of {data?.totalUsers?.aggregate?.count ?? 0}</p>
+            <p>
+              <span>{`${ data?.totalUsers?.aggregate?.count>0?(page * rowsPerPage) + 1 : 0} - ${Math.min((page * rowsPerPage) + rowsPerPage, data?.totalUsers?.aggregate?.count ?? 0)}`} </span> 
+              of {data?.totalUsers?.aggregate?.count ?? 0}
+            </p>
 
-            <Button className='nav-btn' icon={data?.users?.length < rowsPerPage?Right:SelectedRight} onClick={() => handleChangePage('next')} disabled={data?.users?.length < rowsPerPage} action=''/>
+            <Button 
+            className='nav-btn' icon={data?.users?.length < rowsPerPage?Right:SelectedRight} action='' disabled={data?.users?.length < rowsPerPage}  
+            onClick={() => handleChangePage('next')} />
 
-            <Button className='nav-btn' icon={data?.users?.length < rowsPerPage?DoubleRight:SelectedDoubleRight} action='' disabled={data?.users?.length < rowsPerPage} onClick={()=>navigateToStartEnd('end')}/>
+            <Button className='nav-btn' icon={data?.users?.length < rowsPerPage?DoubleRight:SelectedDoubleRight} action='' disabled={data?.users?.length < rowsPerPage} 
+            onClick={()=>navigateToStartEnd('end')}/>
+
             </div>
           </div>
           
@@ -639,12 +670,7 @@ import {CircularProgress} from '@mui/material';
             ))}
         </Menu>
 
-        <CustomSnackbar
-          open={snackbarOpen}
-          message={message}
-          severity={type}
-          onClose={handleCloseSnackbar}
-        />
+       
       </div>
     );
   };

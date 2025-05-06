@@ -6,6 +6,7 @@ import InputField from '../../Components/InputField'
 import { useMutation } from '@apollo/client'
 import { CHANGE_PASSWORD } from '../../graphql/mutation'
 import ChangePasswordSidebar from './ChangePasswordSidebar'
+import ToastMessage from '../../Components/ToastMessage'
 
 type ChangePasswordProps = {
   OldPassword:string
@@ -48,7 +49,7 @@ const ChangePassword = () => {
         }
       })
       if(data?.changeUserPassword?.response){
-        console.log(data.changeUserPassword.response.message);
+        ToastMessage({message:data.changeUserPassword.response.message,toastType:'success'});
         reset()
       }
     }

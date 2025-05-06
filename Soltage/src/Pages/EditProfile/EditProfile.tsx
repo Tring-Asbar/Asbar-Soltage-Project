@@ -1,20 +1,18 @@
 import './EditProfile.scss'
 import ChangePasswordSidebar from '../ChangePassword/ChangePasswordSidebar'
-import { Avatar } from '../../assets/images'
 import  Button  from '../../Components/Button'
 import { Edit } from '../../assets/images'
-import { DialogActions } from '@mui/material'
 import { useEffect,useState } from 'react'
 import { useForm , FormProvider, SubmitHandler} from 'react-hook-form'
 import { useOutletContext } from 'react-router-dom'
 import InputField from '../../Components/InputField'
 import { UPDATE_PROFILE } from '../../graphql/mutation'
 import { PRESIGNED_URL } from '../../graphql/query'
-import { useLazyQuery, useMutation, useQuery } from '@apollo/client'
-import { AlertColor } from '@mui/material'
+import { useLazyQuery, useMutation} from '@apollo/client'
+import {  DialogActions } from '@mui/material'
 import images from '../../assets/icons'
-import CustomSnackbar from '../../Components/CustomSnackbar'
 import moment from 'moment'
+import ToastMessage from '../../Components/ToastMessage'
 
 type FormData = {
   FirstName:string
@@ -25,23 +23,20 @@ type FormData = {
 }
 
 type OutletContextType = {
-  user: any; 
+  user: any;
+  refetch :()=>void 
 };
 
 const EditProfile = () => {
   const {UserIcon} = images
 
-  const { user } = useOutletContext<OutletContextType>();
+  const { user ,refetch} = useOutletContext<OutletContextType>();
 
   const [update_users] = useMutation(UPDATE_PROFILE)
   const[getUploadSignedUrl] = useLazyQuery(PRESIGNED_URL)
 
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-      const [message,setMessage] = useState("");
-      const[type,setType] = useState<AlertColor | undefined>();
-      const [profileImage,setProfileImage] = useState<string>(UserIcon)
-      const[isEditing,setIsEditing] = useState(false)
-      const handleCloseSnackbar = () => setSnackbarOpen(false);
+  const [profileImage,setProfileImage] = useState<string>(UserIcon)
+  const[isEditing,setIsEditing] = useState(false)
   
 
   const methods = useForm<FormData>({
@@ -118,29 +113,22 @@ const EditProfile = () => {
 
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const max_size = 3 * 1024 * 1024
-    const file = e.target.files?.[0];
-    const type = ['image/jpeg', 'image/png','image/svg', 'image/jpg']
+    const MAX_SIZE = 3 * 1024 * 1024
+    const  file = e.target.files?.[0];
+    
+    const imageType = ['image/jpeg', 'image/png','image/svg', 'image/jpg']
     if (file) {
-      if(file.size>max_size){
-        setSnackbarOpen(true);
-        setMessage("File size upto 3 MB ")
-        setType("error")
+      if(file.size>MAX_SIZE){
+        ToastMessage({message:"File size upto 3 MB",toastType:'error'})
       }
-      else if(!type.includes(file.type)){
-        setSnackbarOpen(true);
-        setMessage("Image should be in .jpg,.jpeg,.png or .svg")
-        setType("error")
+      else if(!imageType.includes(file.type)){
+        ToastMessage({message:'Image should be in .jpg,.jpeg,.png or .svg',toastType:'error'})
       }
       else{
         handleUploadtoS3(file, setProfileImage);
       }
-     
-   }
-    
+   } 
   };
-
-  
 
   const onSubmit:SubmitHandler<FormData> = async(values) =>{
     try{
@@ -160,9 +148,8 @@ const EditProfile = () => {
       })
       
       if(data?.update_users){
-        setSnackbarOpen(true);
-        setMessage("Profile updated successfully")
-        setType("success")        
+        ToastMessage({message:"Profile updated successfully",toastType:'success'})
+        refetch()
       }
     }
     catch(err){
@@ -222,15 +209,9 @@ const EditProfile = () => {
          </div>
       </div>
       </div>
-      <CustomSnackbar
-          open={snackbarOpen}
-          message={message}
-          severity={type}
-          onClose={handleCloseSnackbar}
-        />
+      
     </div>
   )
 }
 
 export default EditProfile
-
